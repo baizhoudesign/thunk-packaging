@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Cover Mockup — NYC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1e1e1e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .cover {
+    width: 712px;
+    height: 512px;
+    background: #080706;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 72px rgba(0,0,0,0.8);
+  }
+
+  /* 全滿產品照 */
+  .photo-full {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-full img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: 80% 58%;
+    filter: brightness(1.05);
+  }
+
+  /* 四周漸層遮罩 */
+  .overlay-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 220px;
+    background: linear-gradient(to top, rgba(6,5,4,0.96) 0%, rgba(6,5,4,0.65) 45%, transparent 100%);
+    z-index: 2;
+  }
+  .overlay-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 130px;
+    background: linear-gradient(to bottom, rgba(6,5,4,0.88) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .overlay-left {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 260px;
+    background: linear-gradient(to right, rgba(6,5,4,0.88) 0%, rgba(6,5,4,0.5) 60%, transparent 100%);
+    z-index: 2;
+  }
+  .overlay-right {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 120px;
+    background: linear-gradient(to left, rgba(6,5,4,0.5) 0%, transparent 100%);
+    z-index: 2;
+  }
+
+  /* 網格（極淡） */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,160,80,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,160,80,0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* 外框線 */
+  .border-outer {
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(200,160,80,0.35);
+    z-index: 8;
+    pointer-events: none;
+  }
+
+  /* 對位角線 */
+  .reg-mark { position: absolute; width: 18px; height: 18px; z-index: 9; }
+  .reg-mark::before, .reg-mark::after { content: ''; position: absolute; background: rgba(200,160,80,0.45); }
+  .reg-mark.tl { top: 5px; left: 5px; }
+  .reg-mark.tr { top: 5px; right: 5px; }
+  .reg-mark.bl { bottom: 5px; left: 5px; }
+  .reg-mark.br { bottom: 5px; right: 5px; }
+  .reg-mark.tl::before { width: 1px; height: 11px; top: 3px; left: 0; }
+  .reg-mark.tl::after  { width: 11px; height: 1px; top: 0; left: 3px; }
+  .reg-mark.tr::before { width: 1px; height: 11px; top: 3px; right: 0; }
+  .reg-mark.tr::after  { width: 11px; height: 1px; top: 0; right: 3px; }
+  .reg-mark.bl::before { width: 1px; height: 11px; bottom: 3px; left: 0; }
+  .reg-mark.bl::after  { width: 11px; height: 1px; bottom: 0; left: 3px; }
+  .reg-mark.br::before { width: 1px; height: 11px; bottom: 3px; right: 0; }
+  .reg-mark.br::after  { width: 11px; height: 1px; bottom: 0; right: 3px; }
+
+  /* ── 頂部：THUNK（小） ── */
+  .top-left {
+    position: absolute;
+    top: 22px;
+    left: 26px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.35em;
+    line-height: 1;
+    display: block;
+  }
+  .brand-divider {
+    width: 1px;
+    height: 10px;
+    background: rgba(200,160,80,0.4);
+    display: block;
+  }
+  .brand-sub {
+    font-size: 7px;
+    color: rgba(200,160,80,0.55);
+    letter-spacing: 0.2em;
+    display: block;
+  }
+
+  /* ── 右上：系列標 ── */
+  .top-right {
+    position: absolute;
+    top: 22px;
+    right: 26px;
+    z-index: 6;
+    text-align: right;
+  }
+  .series-tag {
+    font-size: 7px;
+    color: rgba(200,160,80,0.45);
+    letter-spacing: 0.2em;
+    display: block;
+    line-height: 1.9;
+  }
+
+  /* ── 左側：產品名（超大） ── */
+  .product-name-wrap {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-52%);
+    left: 22px;
+    z-index: 6;
+  }
+  .product-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 118px;
+    color: #FFFFFF;
+    letter-spacing: -0.01em;
+    line-height: 0.85;
+    display: block;
+  }
+  .product-name-sub {
+    font-size: 7px;
+    color: rgba(200,160,80,0.5);
+    letter-spacing: 0.22em;
+    display: block;
+    margin-top: 12px;
+  }
+
+  /* ── 右下：Spec ── */
+  .spec-wrap {
+    position: absolute;
+    bottom: 28px;
+    right: 28px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .spec-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .spec-key {
+    font-size: 6.5px;
+    color: rgba(200,160,80,0.45);
+    letter-spacing: 0.18em;
+  }
+  .spec-val {
+    font-size: 16px;
+    color: #F0E0B0;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .diff-dots { display: flex; gap: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(200,160,80,0.6); }
+  .dot.on { background: #C8A050; border-color: #C8A050; }
+
+  /* ── 工程介面 SVG ── */
+  .eng-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 7;
+    pointer-events: none;
+  }
+
+  /* 工程標注小字 */
+  .eng-label {
+    position: absolute;
+    z-index: 7;
+    pointer-events: none;
+  }
+  .eng-label span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 7px;
+    color: rgba(200,160,80,0.55);
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  /* 右下分隔線 */
+  .spec-rule {
+    position: absolute;
+    bottom: 28px;
+    right: 110px;
+    width: 1px;
+    height: 90px;
+    background: linear-gradient(to top, rgba(200,160,80,0.4) 0%, transparent 100%);
+    z-index: 6;
+  }
+
+</style>
+</head>
+<body>
+<div class="cover">
+
+  <div class="photo-full">
+    <img src="ref/產品照/紐約天際線.png" alt="NYC Skyline">
+  </div>
+
+  <div class="overlay-top"></div>
+  <div class="overlay-bottom"></div>
+  <div class="overlay-left"></div>
+  <div class="overlay-right"></div>
+  <div class="grid-bg"></div>
+
+  <div class="border-outer"></div>
+  <div class="reg-mark tl"></div>
+  <div class="reg-mark tr"></div>
+  <div class="reg-mark bl"></div>
+  <div class="reg-mark br"></div>
+
+  <!-- 頂左：品牌 -->
+  <div class="top-left">
+    <span class="brand-name">THUNK</span>
+    <span class="brand-divider"></span>
+    <span class="brand-sub">WOODEN 3D PUZZLE</span>
+  </div>
+
+  <!-- 頂右：系列 -->
+  <div class="top-right">
+    <span class="series-tag">ARCHITECTURE SERIES</span>
+    <span class="series-tag">AGE 14+</span>
+  </div>
+
+  <!-- 左下：產品名 -->
+  <div class="product-name-wrap">
+    <span class="product-name">NEW<br>YORK</span>
+    <span class="product-name-sub">BIRCHWOOD &nbsp;·&nbsp; 3.0MM &nbsp;·&nbsp; LASER CUT</span>
+  </div>
+
+  <!-- 工程介面 SVG -->
+  <svg class="eng-svg" viewBox="0 0 712 512" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- 背景掃描線 -->
+    <line x1="26" y1="170" x2="686" y2="170" stroke="rgba(200,160,80,0.05)" stroke-width="1"/>
+    <line x1="26" y1="256" x2="686" y2="256" stroke="rgba(200,160,80,0.05)" stroke-width="1"/>
+    <line x1="26" y1="342" x2="686" y2="342" stroke="rgba(200,160,80,0.05)" stroke-width="1"/>
+    <line x1="26" y1="428" x2="686" y2="428" stroke="rgba(200,160,80,0.05)" stroke-width="1"/>
+    <line x1="356" y1="44" x2="356" y2="468" stroke="rgba(200,160,80,0.04)" stroke-width="1"/>
+    <line x1="534" y1="44" x2="534" y2="468" stroke="rgba(200,160,80,0.04)" stroke-width="1"/>
+
+    <!-- ① WTC 主瞄準框 -->
+    <g opacity="0.75">
+      <line x1="572" y1="100" x2="592" y2="100" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="572" y1="100" x2="572" y2="120" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="644" y1="100" x2="624" y2="100" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="644" y1="100" x2="644" y2="120" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="572" y1="210" x2="592" y2="210" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="572" y1="210" x2="572" y2="190" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="644" y1="210" x2="624" y2="210" stroke="#C8A050" stroke-width="1.2"/>
+      <line x1="644" y1="210" x2="644" y2="190" stroke="#C8A050" stroke-width="1.2"/>
+      <!-- 中心十字 -->
+      <line x1="608" y1="148" x2="608" y2="164" stroke="#C8A050" stroke-width="0.8" opacity="0.7"/>
+      <line x1="600" y1="156" x2="616" y2="156" stroke="#C8A050" stroke-width="0.8" opacity="0.7"/>
+      <circle cx="608" cy="156" r="4" fill="none" stroke="#C8A050" stroke-width="0.8" opacity="0.5"/>
+      <circle cx="608" cy="156" r="1.5" fill="#C8A050" opacity="0.6"/>
+    </g>
+
+    <!-- ① WTC 引線 -->
+    <line x1="608" y1="100" x2="608" y2="76" stroke="rgba(200,160,80,0.5)" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <line x1="608" y1="76" x2="660" y2="76" stroke="rgba(200,160,80,0.5)" stroke-width="0.8"/>
+    <circle cx="608" cy="100" r="2" fill="#C8A050" opacity="0.6"/>
+
+    <!-- ② Empire State 小瞄準框 -->
+    <g opacity="0.5">
+      <line x1="828" y1="148" x2="840" y2="148" stroke="#C8A050" stroke-width="0.9"/>
+      <line x1="828" y1="148" x2="828" y2="160" stroke="#C8A050" stroke-width="0.9"/>
+      <line x1="872" y1="148" x2="860" y2="148" stroke="#C8A050" stroke-width="0.9"/>
+      <line x1="872" y1="148" x2="872" y2="160" stroke="#C8A050" stroke-width="0.9"/>
+    </g>
+
+    <!-- 高度標注線（WTC 左側） -->
+    <line x1="566" y1="100" x2="566" y2="418" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+    <line x1="560" y1="100" x2="572" y2="100" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+    <line x1="560" y1="418" x2="572" y2="418" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+    <!-- 高度標注中段橫線 -->
+    <line x1="558" y1="260" x2="566" y2="260" stroke="rgba(200,160,80,0.2)" stroke-width="0.8"/>
+
+    <!-- 底部寬度標注線 -->
+    <line x1="480" y1="450" x2="686" y2="450" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+    <line x1="480" y1="444" x2="480" y2="456" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+    <line x1="686" y1="444" x2="686" y2="456" stroke="rgba(200,160,80,0.28)" stroke-width="0.8"/>
+
+    <!-- 自由女神引線 -->
+    <circle cx="510" cy="390" r="3" fill="none" stroke="rgba(200,160,80,0.45)" stroke-width="0.8"/>
+    <line x1="510" y1="387" x2="510" y2="365" stroke="rgba(200,160,80,0.35)" stroke-width="0.8" stroke-dasharray="2,2"/>
+    <line x1="510" y1="365" x2="476" y2="365" stroke="rgba(200,160,80,0.35)" stroke-width="0.8"/>
+
+    <!-- 座標軸指示（左下） -->
+    <g transform="translate(430, 450)" opacity="0.4">
+      <line x1="0" y1="0" x2="18" y2="0" stroke="#C8A050" stroke-width="0.9"/>
+      <line x1="0" y1="0" x2="0" y2="-18" stroke="#C8A050" stroke-width="0.9"/>
+      <polygon points="18,0 14,-2.5 14,2.5" fill="#C8A050"/>
+      <polygon points="0,-18 -2.5,-14 2.5,-14" fill="#C8A050"/>
+    </g>
+
+    <!-- 資料框（右側中段） -->
+    <g opacity="0.55">
+      <rect x="648" y="230" width="52" height="36" fill="none" stroke="#C8A050" stroke-width="0.8"/>
+      <line x1="648" y1="240" x2="700" y2="240" stroke="#C8A050" stroke-width="0.8" opacity="0.5"/>
+    </g>
+
+    <!-- 底部資料框 -->
+    <g opacity="0.4">
+      <rect x="430" y="456" width="38" height="14" fill="none" stroke="#C8A050" stroke-width="0.7"/>
+    </g>
+
+    <!-- 斜角裝飾線 -->
+    <line x1="26" y1="44" x2="50" y2="68" stroke="rgba(200,160,80,0.15)" stroke-width="0.8"/>
+    <line x1="686" y1="44" x2="662" y2="68" stroke="rgba(200,160,80,0.15)" stroke-width="0.8"/>
+
+  </svg>
+
+  <!-- 工程標注文字 -->
+  <div class="eng-label" style="top:68px; left:664px;"><span>01 · ONE WTC</span></div>
+  <div class="eng-label" style="top:252px; left:538px; transform:rotate(-90deg); transform-origin:0 0;"><span>H 541mm</span></div>
+  <div class="eng-label" style="top:444px; left:567px;"><span>W 380mm</span></div>
+  <div class="eng-label" style="top:357px; left:430px;"><span>02 · STATUE</span></div>
+  <div class="eng-label" style="top:233px; left:652px; line-height:1.8;">
+    <span style="display:block;">SCALE</span>
+    <span style="display:block; color:rgba(200,160,80,0.8);">1:87</span>
+  </div>
+  <div class="eng-label" style="top:458px; left:433px;"><span>X&thinsp;Y</span></div>
+  <div class="eng-label" style="top:456px; left:344px;"><span>COORD &thinsp;28.5°N</span></div>
+
+  <!-- 右下分隔 -->
+  <div class="spec-rule"></div>
+
+  <!-- 右下：規格 -->
+  <div class="spec-wrap">
+    <div class="spec-item">
+      <span class="spec-key">PIECES</span>
+      <span class="spec-val">214 PCS</span>
+    </div>
+    <div class="spec-item">
+      <span class="spec-key">DIFFICULTY</span>
+      <div class="diff-dots">
+        <div class="dot on"></div>
+        <div class="dot on"></div>
+        <div class="dot on"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>NYC Packaging — Front & Back</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 32px;
+    gap: 40px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .label {
+    color: #888;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    width: 712px;
+    text-align: left;
+  }
+  .face { position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.25); outline: 1px solid #ccc; }
+
+  /* ════════════════════════════════
+     外圍尺寸標注
+  ════════════════════════════════ */
+  .dim-wrap {
+    position:relative; display:inline-block;
+  }
+  /* 頂部水平尺寸 */
+  .dim-h {
+    position:absolute; top:-22px; left:0; right:0;
+    display:flex; align-items:center; height:14px;
+  }
+  .dim-h .dim-tick {
+    width:1px; height:10px; background:rgba(150,150,150,0.5);
+  }
+  .dim-h .dim-line-h {
+    flex:1; height:1px; background:rgba(150,150,150,0.4);
+  }
+  .dim-h .dim-text {
+    position:absolute; left:50%; transform:translateX(-50%); top:-2px;
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    color:rgba(120,120,120,0.7); letter-spacing:0.1em;
+    background:#f0f0f0; padding:0 6px;
+  }
+  /* 右側垂直尺寸 */
+  .dim-v {
+    position:absolute; top:0; right:-32px; bottom:0;
+    display:flex; flex-direction:column; align-items:center; width:14px;
+  }
+  .dim-v .dim-tick {
+    width:10px; height:1px; background:rgba(150,150,150,0.5);
+  }
+  .dim-v .dim-line-v {
+    flex:1; width:1px; background:rgba(150,150,150,0.4);
+  }
+  .dim-v .dim-text {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%) rotate(-90deg);
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    color:rgba(120,120,120,0.7); letter-spacing:0.1em;
+    background:#f0f0f0; padding:0 6px; white-space:nowrap;
+  }
+
+  /* ════════════════════════════════
+     共用樣式
+  ════════════════════════════════ */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(200,160,80,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,160,80,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    z-index: 0; pointer-events: none;
+  }
+  .border-outer { display: none; }
+  .reg { display: none; }
+  .reg { position: absolute; width: 18px; height: 18px; z-index: 9; }
+  .reg::before, .reg::after { content: ''; position: absolute; background: rgba(200,160,80,0.4); }
+  .reg.tl{top:5px;left:5px} .reg.tr{top:5px;right:5px} .reg.bl{bottom:5px;left:5px} .reg.br{bottom:5px;right:5px}
+  .reg.tl::before{width:1px;height:11px;top:3px;left:0} .reg.tl::after{width:11px;height:1px;top:0;left:3px}
+  .reg.tr::before{width:1px;height:11px;top:3px;right:0} .reg.tr::after{width:11px;height:1px;top:0;right:3px}
+  .reg.bl::before{width:1px;height:11px;bottom:3px;left:0} .reg.bl::after{width:11px;height:1px;bottom:0;left:3px}
+  .reg.br::before{width:1px;height:11px;bottom:3px;right:0} .reg.br::after{width:11px;height:1px;bottom:0;right:3px}
+
+  /* ════════════════════════════════
+     正面 FRONT
+  ════════════════════════════════ */
+  .front {
+    width: 712px; height: 512px;
+    background: #080706;
+  }
+  .front .photo-full {
+    position: absolute; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(90deg, transparent 280px, rgba(11,9,6,0.5) 320px, #0b0906 370px);
+  }
+  .front .photo-full img {
+    width: 100%; height: 100%;
+    object-fit: contain; object-position: 100% 50%;
+    filter: brightness(1.05);
+  }
+  .front .ov-top {
+    position: absolute; top:0;left:0;right:0;height:130px;
+    background: linear-gradient(to bottom, rgba(6,5,4,0.88) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .front .ov-bottom {
+    position: absolute; bottom:0; left:0; right:0; height:160px;
+    background: linear-gradient(to top, rgba(6,5,4,0.88) 0%, rgba(6,5,4,0.4) 60%, transparent 100%);
+    z-index: 2;
+  }
+  .front .ov-left { display:none; }
+  .front .ov-right {
+    position: absolute; top:0;right:0;bottom:0;width:120px;
+    background: linear-gradient(to left, rgba(6,5,4,0.5) 0%, transparent 100%);
+    z-index: 2;
+  }
+  /* 頂部 */
+  .front .top-bar {
+    position: absolute; top:22px; left:26px; right:26px;
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:101;
+  }
+  .front .brand { display:flex; align-items:center; gap:10px; }
+  .front .brand-name {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    color:rgba(255,255,255,0.85); letter-spacing:0.35em;
+  }
+  .front .brand-div { width:1px; height:10px; background:rgba(200,160,80,0.4); }
+  .front .brand-sub { font-size:7px; color:rgba(200,160,80,0.55); letter-spacing:0.2em; }
+  .front .series { font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.2em; text-align:right; line-height:1.9; }
+  /* 產品名 */
+  .front .product-name {
+    position:absolute; top:50%; transform:translateY(-52%); left:22px; z-index:101;
+  }
+  .front .pname {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:128px;
+    color:#FFF; letter-spacing:-0.02em; line-height:0.88;
+    max-width:272px; overflow:hidden;
+  }
+  .front .psub { font-size:7px; color:rgba(200,160,80,0.5); letter-spacing:0.22em; display:block; margin-top:12px; }
+  /* 右下規格 */
+  .front .spec-wrap {
+    position:absolute; bottom:20px; right:20px; z-index:101;
+    display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+    background: rgba(5,3,1,0.72);
+    padding: 8px 12px;
+    border-left: 1px solid rgba(200,160,80,0.3);
+  }
+  .front .spec-rule { display:none; }
+  .spec-item { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .spec-key { font-size:6.5px; color:rgba(200,160,80,0.45); letter-spacing:0.18em; }
+  .spec-val { font-size:16px; color:#F0E0B0; font-weight:bold; letter-spacing:0.04em; line-height:1; }
+  .diff-dots { display:flex; gap:4px; }
+  .dot { width:8px; height:8px; border-radius:50%; border:1px solid rgba(200,160,80,0.6); }
+  .dot.on { background:#C8A050; border-color:#C8A050; }
+  /* 工程 SVG */
+  .eng-svg {
+    position:absolute; inset:0; width:100%; height:100%;
+    z-index:101; pointer-events:none;
+  }
+  .eng-label {
+    position:absolute; z-index:101; pointer-events:none;
+    font-family:'Share Tech Mono',monospace; font-size:7px;
+    color:rgba(200,160,80,0.55); letter-spacing:0.12em; white-space:nowrap;
+  }
+
+  /* ════════════════════════════════
+     背面 BACK — Blueprint 風格
+  ════════════════════════════════ */
+  .back {
+    width: 712px; height: 512px;
+    background: #080706;
+  }
+  /* Blueprint 底色 */
+  .back .bp-bg {
+    position:absolute; inset:0;
+    background:
+      linear-gradient(rgba(140,190,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,190,255,0.04) 1px, transparent 1px),
+      rgba(8,28,65,0.55);
+    background-size: 22px 22px, 22px 22px, auto;
+    z-index:1;
+  }
+  /* 頂部 header */
+  .back .top-bar {
+    position:absolute; top:22px; left:26px; right:26px;
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:5;
+  }
+  .back .brand { display:flex; align-items:center; gap:10px; }
+  .back .brand-name {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    color:rgba(255,255,255,0.9); letter-spacing:0.35em;
+  }
+  .back .brand-div { width:1px; height:10px; background:rgba(200,160,80,0.45); }
+  .back .brand-sub { font-size:7px; color:rgba(200,160,80,0.65); letter-spacing:0.2em; }
+  .back .pname-small {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px;
+    color:rgba(255,255,255,0.75); letter-spacing:0.15em;
+  }
+  .back .top-rule {
+    position:absolute; top:50px; left:26px; right:26px; height:1px;
+    background:linear-gradient(90deg, rgba(200,160,80,0.45) 0%, rgba(200,160,80,0.08) 100%);
+    z-index:5;
+  }
+  /* 描述文字 */
+  .back .desc {
+    position:absolute; top:58px; left:26px; right:200px;
+    z-index:5;
+  }
+  .back .desc p {
+    font-family:'Rajdhani',sans-serif; font-weight:400; font-size:10.5px;
+    color:rgba(255,255,255,0.6); letter-spacing:0.04em; line-height:1.6;
+  }
+  /* 照片區：3張 */
+  .back .photos {
+    position:absolute; top:155px; left:26px; right:26px; height:180px;
+    display:flex; gap:8px; z-index:5;
+  }
+  .back .photo-thumb {
+    flex:1; position:relative; overflow:hidden;
+    border:1px solid rgba(200,160,80,0.2);
+  }
+  .back .photo-thumb img {
+    width:100%; height:100%; object-fit:cover; object-position:center;
+    filter:brightness(0.85);
+  }
+  .back .photo-thumb .ph-label {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(6,5,4,0.75); padding:4px 6px;
+    font-size:6.5px; color:rgba(200,160,80,0.7); letter-spacing:0.15em;
+  }
+  /* 角框裝飾 */
+  .back .photo-thumb::before {
+    content:''; position:absolute; top:5px; left:5px;
+    width:12px; height:12px; z-index:2; pointer-events:none;
+    border-top:1px solid rgba(200,160,80,0.5);
+    border-left:1px solid rgba(200,160,80,0.5);
+  }
+  .back .photo-thumb::after {
+    content:''; position:absolute; bottom:22px; right:5px;
+    width:12px; height:12px; z-index:2; pointer-events:none;
+    border-bottom:1px solid rgba(200,160,80,0.3);
+    border-right:1px solid rgba(200,160,80,0.3);
+  }
+  /* 右側規格面板 */
+  .back .spec-panel {
+    position:absolute; top:58px; right:26px; width:155px;
+    z-index:5;
+    display:flex; flex-direction:column; gap:0;
+  }
+  .back .spec-panel-item {
+    padding:10px 14px;
+    border-bottom:1px solid rgba(200,160,80,0.15);
+  }
+  .back .spec-panel-item:first-child {
+    border-top:1px solid rgba(200,160,80,0.25);
+  }
+  .back .sc-key {
+    font-size:6px; color:rgba(200,160,80,0.55); letter-spacing:0.18em; margin-bottom:4px;
+    display:block;
+  }
+  .back .sc-val {
+    font-size:13px; color:#F0E0B0; font-weight:bold; letter-spacing:0.05em;
+    font-family:'Rajdhani',sans-serif;
+  }
+  /* Spec 三欄 — 隱藏舊版 */
+  .back .spec-row { display:none; }
+  /* 底部欄 */
+  .back .bottom-bar {
+    position:absolute; bottom:18px; left:26px; right:26px;
+    display:flex; align-items:center; gap:12px; z-index:5;
+  }
+  .back .mfr { flex:1; font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.15em; line-height:1.8; }
+  /* 條碼 */
+  .back .barcode { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .back .barcode-bars {
+    display:flex; gap:1px; align-items:flex-end; height:28px;
+  }
+  .back .barcode-bars span {
+    display:block; background:rgba(200,160,80,0.6); width:1.5px;
+  }
+  .back .barcode-num { font-size:6px; color:rgba(200,160,80,0.45); letter-spacing:0.08em; }
+  /* QR */
+  .back .qr-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .back .qr-box {
+    width:32px; height:32px;
+    border:1px solid rgba(200,160,80,0.4);
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+    padding:3px;
+  }
+  .back .qr-box span { background:rgba(200,160,80,0.5); border-radius:0.5px; }
+  .back .qr-box span.e { background:transparent; }
+  .back .qr-label { font-size:6px; color:rgba(200,160,80,0.4); letter-spacing:0.1em; }
+  /* 警告 */
+  .back .warning {
+    font-size:6.5px; color:rgba(200,160,80,0.35); letter-spacing:0.1em; line-height:1.7;
+    border-left:1px solid rgba(200,160,80,0.25); padding-left:10px;
+  }
+
+  /* ════════════════════════════════
+     Category Tags (正面右上)
+  ════════════════════════════════ */
+  .front .cat-tags { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .front .cat-tag {
+    font-family:'Share Tech Mono',monospace; font-size:6px;
+    color:rgba(200,160,80,0.45); border:1px solid rgba(200,160,80,0.22);
+    padding:2px 8px; letter-spacing:0.2em;
+  }
+
+  /* ════════════════════════════════
+     Layers — 色塊堆疊
+  ════════════════════════════════ */
+  /* 頂部金線 — 已刪除 */
+  .front .accent-top { display:none; }
+  /* 左右分區垂直線 */
+  .front .zone-div {
+    position:absolute; top:44px; left:296px; bottom:14px; width:1px;
+    background:linear-gradient(to bottom,
+      rgba(200,160,80,0.28) 0%,
+      rgba(200,160,80,0.12) 50%,
+      rgba(200,160,80,0.02) 100%);
+    z-index:5;
+  }
+  /* 底部資訊帶 */
+  .front .bottom-band {
+    position:absolute; bottom:0; left:0; right:0; height:82px;
+    background:rgba(5,4,3,0.82);
+    border-top:1px solid rgba(200,160,80,0.22);
+    z-index:7;
+  }
+  /* 底部帶左側裝飾點 */
+  .front .bottom-band::before {
+    content:''; position:absolute; left:0; top:-1px;
+    width:80px; height:1px;
+    background:rgba(200,160,80,0.55);
+  }
+
+  /* 左側 BLUEPRINT 色塊 — 主層次 */
+  .front .panel-left {
+    position:absolute; top:0; left:0; bottom:0; width:360px;
+    background:
+      linear-gradient(rgba(140,190,255,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,190,255,0.055) 1px, transparent 1px),
+      rgba(8,38,88,0.88);
+    background-size: 22px 22px, 22px 22px, auto;
+    border-right:1px solid rgba(80,140,240,0.3);
+    z-index:3;
+  }
+  /* 左側金色 accent 邊條 — 已刪除 */
+  .front .panel-left::before {
+    display:none;
+  }
+  /* 標題帶 — blueprint 亮區 */
+  .front .title-band {
+    position:absolute; top:148px; left:0; width:360px; height:210px;
+    background: linear-gradient(to bottom,
+      rgba(30,80,180,0.2) 0%,
+      rgba(40,100,210,0.25) 50%,
+      rgba(25,70,160,0.15) 100%);
+    border-top:1px solid rgba(100,160,255,0.35);
+    border-bottom:1px solid rgba(100,160,255,0.2);
+    z-index:4;
+  }
+  /* 底部帶 — 刪除 */
+  .front .bottom-band { display:none; }
+
+  /* ════════════════════════════════
+     Feature Icon Strip (正面左下)
+  ════════════════════════════════ */
+  .front .feature-strip {
+    position:absolute; bottom:20px; left:20px;
+    display:flex; gap:14px; z-index:102; align-items:flex-start;
+  }
+  .front .feat-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .front .feat-icon {
+    width:26px; height:26px;
+    border:1px solid rgba(200,160,80,0.42);
+    background:rgba(200,160,80,0.05);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .front .feat-icon::after {
+    content:''; position:absolute; inset:2px;
+    border:1px solid rgba(200,160,80,0.1);
+  }
+  .front .feat-label {
+    font-family:'Share Tech Mono',monospace; font-size:4.5px;
+    color:rgba(200,160,80,0.55); letter-spacing:0.08em;
+    text-align:center; line-height:1.5; width:38px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ═══ 正面 ═══ -->
+<div class="label">正面 &nbsp;·&nbsp; 28.5 × 20.5 cm</div>
+<div class="dim-wrap">
+  <!-- 頂部寬度標注 -->
+  <div class="dim-h">
+    <div class="dim-tick"></div>
+    <div class="dim-line-h"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">285 mm</span>
+  </div>
+  <!-- 右側高度標注 -->
+  <div class="dim-v">
+    <div class="dim-tick"></div>
+    <div class="dim-line-v"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">205 mm</span>
+  </div>
+<div class="face front">
+  <div class="photo-full"><img src="ref/產品照/紐約天際線.png" alt="NYC"></div>
+  <div class="ov-top"></div><div class="ov-bottom"></div>
+  <div class="ov-left"></div><div class="ov-right"></div>
+  <div class="grid-bg"></div>
+  <div class="border-outer"></div>
+  <div class="reg tl"></div><div class="reg tr"></div><div class="reg bl"></div><div class="reg br"></div>
+
+  <!-- ─ COLOR BLOCK LAYERS ─ -->
+  <!-- Layer 1: 頂部金線帶 -->
+  <div class="accent-top"></div>
+  <!-- Layer 2: 左側面板色塊 -->
+  <div class="panel-left"></div>
+  <!-- Layer 3: 標題金色帶 (panel 內的子層次) -->
+  <div class="title-band"></div>
+  <!-- Layer 4: 左右區域分隔線 -->
+  <div class="zone-div"></div>
+  <!-- Layer 5: 底部資訊帶 -->
+  <div class="bottom-band"></div>
+
+  <div class="top-bar">
+    <div class="brand">
+      <span class="brand-name">THUNK</span>
+      <span class="brand-div"></span>
+      <span class="brand-sub">WOODEN 3D PUZZLE</span>
+    </div>
+    <div class="cat-tags">
+      <span class="cat-tag">ARCHITECTURE</span>
+      <span class="cat-tag">ENGINEERING</span>
+      <span class="cat-tag">CRAFTSMANSHIP</span>
+    </div>
+  </div>
+
+  <div class="product-name">
+    <span class="pname">NEW<br>YORK</span>
+    <span class="psub">BIRCHWOOD &nbsp;·&nbsp; 3.0MM &nbsp;·&nbsp; LASER CUT</span>
+  </div>
+
+  <div class="spec-rule"></div>
+  <div class="spec-wrap">
+    <div class="spec-item">
+      <span class="spec-key">PIECES</span>
+      <span class="spec-val">214 PCS</span>
+    </div>
+    <div class="spec-item">
+      <span class="spec-key">DIFFICULTY</span>
+      <div class="diff-dots">
+        <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+        <div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+    <div class="spec-item">
+      <span class="spec-key">AGE</span>
+      <span class="spec-val">14+</span>
+    </div>
+  </div>
+
+  <!-- 工程介面 — Blueprint Infographic 建築標注 -->
+  <svg class="eng-svg" viewBox="0 0 712 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        .bp-line { stroke:rgba(120,180,255,0.6); stroke-width:0.8; }
+        .bp-dash { stroke:rgba(120,180,255,0.5); stroke-width:0.8; stroke-dasharray:3,2; }
+        .bp-dot  { fill:rgba(120,180,255,0.8); }
+        .bp-ring { fill:none; stroke:rgba(120,180,255,0.6); stroke-width:0.8; }
+        .bp-text { font-family:'Share Tech Mono',monospace; fill:rgba(180,215,255,0.85); letter-spacing:0.08em; }
+        .bp-dim  { font-family:'Share Tech Mono',monospace; fill:rgba(120,180,255,0.65); letter-spacing:0.06em; }
+        .bp-box  { fill:rgba(8,30,70,0.65); stroke:rgba(120,180,255,0.45); stroke-width:0.7; }
+      </style>
+    </defs>
+
+    <!-- ── ONE WORLD TRADE CENTER ── -->
+    <circle cx="458" cy="98" r="3" class="bp-ring"/>
+    <circle cx="458" cy="98" r="1.2" class="bp-dot"/>
+    <!-- 引線：向右下到標籤 -->
+    <line x1="461" y1="100" x2="490" y2="168" class="bp-dash"/>
+    <line x1="490" y1="168" x2="540" y2="168" class="bp-line"/>
+    <!-- 標籤框 -->
+    <rect x="542" y="156" width="96" height="26" rx="1" class="bp-box"/>
+    <line x1="542" y1="170" x2="638" y2="170" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="552" y="168" font-size="7.5" class="bp-text">ONE WTC</text>
+    <text x="552" y="178" font-size="6" class="bp-dim">H 541mm · 1:87</text>
+    <!-- 高度尺寸線 -->
+    <line x1="440" y1="92" x2="440" y2="420" stroke="rgba(120,180,255,0.2)" stroke-width="0.7"/>
+    <line x1="436" y1="92" x2="444" y2="92" stroke="rgba(120,180,255,0.35)" stroke-width="0.7"/>
+    <line x1="436" y1="420" x2="444" y2="420" stroke="rgba(120,180,255,0.35)" stroke-width="0.7"/>
+    <text x="430" y="260" font-size="6" class="bp-dim" transform="rotate(-90,430,260)" text-anchor="middle">541mm</text>
+
+    <!-- ── EMPIRE STATE BUILDING ── -->
+    <circle cx="400" cy="135" r="3" class="bp-ring"/>
+    <circle cx="400" cy="135" r="1.2" class="bp-dot"/>
+    <!-- 引線：向右下到標籤 -->
+    <line x1="403" y1="137" x2="430" y2="228" class="bp-dash"/>
+    <line x1="430" y1="228" x2="540" y2="228" class="bp-line"/>
+    <!-- 標籤框 -->
+    <rect x="542" y="216" width="88" height="26" rx="1" class="bp-box"/>
+    <line x1="542" y1="230" x2="630" y2="230" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="552" y="228" font-size="7" class="bp-text">EMPIRE STATE</text>
+    <text x="552" y="238" font-size="6" class="bp-dim">H 380mm · 102F</text>
+
+    <!-- ── CHRYSLER BUILDING ── -->
+    <circle cx="490" cy="160" r="2.5" class="bp-ring"/>
+    <circle cx="490" cy="160" r="1" class="bp-dot"/>
+    <!-- 引線：向右到標籤 -->
+    <line x1="493" y1="162" x2="540" y2="200" class="bp-dash"/>
+    <!-- 小標籤（無框，僅文字） -->
+    <text x="544" y="200" font-size="6.5" class="bp-text">CHRYSLER</text>
+    <text x="544" y="208" font-size="5.5" class="bp-dim">H 318mm</text>
+
+    <!-- ── STATUE OF LIBERTY ── -->
+    <circle cx="345" cy="365" r="2.5" class="bp-ring"/>
+    <circle cx="345" cy="365" r="1" class="bp-dot"/>
+    <!-- 引線 -->
+    <line x1="345" y1="362" x2="345" y2="340" class="bp-dash"/>
+    <line x1="345" y1="340" x2="410" y2="340" class="bp-line"/>
+    <!-- 標籤框 -->
+    <rect x="412" y="328" width="105" height="26" rx="1" class="bp-box"/>
+    <line x1="412" y1="342" x2="517" y2="342" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="422" y="340" font-size="7.5" class="bp-text">STATUE OF LIBERTY</text>
+    <text x="422" y="350" font-size="6" class="bp-dim">H 142mm · COPPER</text>
+
+    <!-- ── FLAT IRON ── -->
+    <circle cx="525" cy="310" r="2" class="bp-ring"/>
+    <circle cx="525" cy="310" r="0.8" class="bp-dot"/>
+    <line x1="528" y1="308" x2="558" y2="290" class="bp-dash"/>
+    <line x1="558" y1="290" x2="610" y2="290" class="bp-line"/>
+    <!-- 小標籤 -->
+    <rect x="612" y="282" width="72" height="18" rx="1" class="bp-box"/>
+    <text x="620" y="294" font-size="6.5" class="bp-text">FLATIRON</text>
+
+    <!-- ── 底部寬度尺寸線 ── -->
+    <line x1="320" y1="445" x2="680" y2="445" stroke="rgba(120,180,255,0.2)" stroke-width="0.7"/>
+    <line x1="320" y1="440" x2="320" y2="450" stroke="rgba(120,180,255,0.3)" stroke-width="0.7"/>
+    <line x1="680" y1="440" x2="680" y2="450" stroke="rgba(120,180,255,0.3)" stroke-width="0.7"/>
+    <text x="500" y="442" font-size="6" class="bp-dim" text-anchor="middle">W 380mm</text>
+
+    <!-- ── 裝飾：坐標軸 ── -->
+    <g transform="translate(330,440)" opacity="0.3">
+      <line x1="0" y1="0" x2="16" y2="0" stroke="rgba(120,180,255,0.8)" stroke-width="0.8"/>
+      <line x1="0" y1="0" x2="0" y2="-16" stroke="rgba(120,180,255,0.8)" stroke-width="0.8"/>
+      <polygon points="16,0 13,-2 13,2" fill="rgba(120,180,255,0.7)"/>
+      <polygon points="0,-16 -2,-13 2,-13" fill="rgba(120,180,255,0.7)"/>
+      <text x="16" y="6" font-size="5" fill="rgba(120,180,255,0.5)" font-family="Share Tech Mono,monospace">X</text>
+      <text x="-6" y="-16" font-size="5" fill="rgba(120,180,255,0.5)" font-family="Share Tech Mono,monospace">Y</text>
+    </g>
+
+    <!-- Feature strip 上方分隔 -->
+    <line x1="22" y1="424" x2="270" y2="424" stroke="rgba(120,180,255,0.15)" stroke-width="0.7" stroke-dasharray="3,5"/>
+  </svg>
+  <!-- Blueprint 建築白線輪廓 (在左側藍色面板內) -->
+  <svg style="position:absolute;top:0;left:0;width:360px;height:calc(100% - 82px);z-index:5;pointer-events:none;overflow:hidden;" viewBox="0 0 360 430" xmlns="http://www.w3.org/2000/svg">
+    <!-- 地平線 -->
+    <line x1="0" y1="370" x2="296" y2="370" stroke="rgba(160,200,255,0.25)" stroke-width="0.8"/>
+    <!-- One World Trade Center 輪廓 (居中偏右) -->
+    <g opacity="0.75">
+      <polygon points="148,80 156,80 162,100 162,340 134,340 134,100 140,80" fill="none" stroke="rgba(200,230,255,0.9)" stroke-width="0.9"/>
+      <!-- 天線 -->
+      <line x1="148" y1="80" x2="148" y2="52" stroke="rgba(200,230,255,0.8)" stroke-width="0.8"/>
+      <line x1="144" y1="68" x2="152" y2="68" stroke="rgba(200,230,255,0.5)" stroke-width="0.6"/>
+      <!-- 窗格 -->
+      <line x1="140" y1="120" x2="156" y2="120" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="150" x2="156" y2="150" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="180" x2="156" y2="180" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="210" x2="156" y2="210" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="240" x2="156" y2="240" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="270" x2="156" y2="270" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="140" y1="300" x2="156" y2="300" stroke="rgba(160,200,255,0.35)" stroke-width="0.6"/>
+      <line x1="148" y1="100" x2="148" y2="340" stroke="rgba(160,200,255,0.2)" stroke-width="0.6"/>
+    </g>
+    <!-- Empire State 輪廓 (左側) -->
+    <g opacity="0.55">
+      <polygon points="72,180 80,180 84,200 84,340 68,340 68,200 72,180" fill="none" stroke="rgba(180,220,255,0.8)" stroke-width="0.8"/>
+      <polygon points="74,165 78,165 80,180 72,180" fill="none" stroke="rgba(180,220,255,0.7)" stroke-width="0.8"/>
+      <line x1="76" y1="165" x2="76" y2="145" stroke="rgba(180,220,255,0.65)" stroke-width="0.7"/>
+      <line x1="68" y1="240" x2="84" y2="240" stroke="rgba(140,190,255,0.3)" stroke-width="0.5"/>
+      <line x1="68" y1="280" x2="84" y2="280" stroke="rgba(140,190,255,0.3)" stroke-width="0.5"/>
+    </g>
+    <!-- 右側小建築群 -->
+    <g opacity="0.45">
+      <rect x="200" y="250" width="18" height="90" fill="none" stroke="rgba(160,200,255,0.7)" stroke-width="0.7"/>
+      <rect x="224" y="230" width="14" height="110" fill="none" stroke="rgba(160,200,255,0.7)" stroke-width="0.7"/>
+      <rect x="245" y="260" width="20" height="80" fill="none" stroke="rgba(160,200,255,0.7)" stroke-width="0.7"/>
+      <rect x="270" y="270" width="16" height="70" fill="none" stroke="rgba(160,200,255,0.6)" stroke-width="0.7"/>
+    </g>
+    <!-- 尺寸標注 -->
+    <line x1="130" y1="52" x2="130" y2="340" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="124" y1="52" x2="136" y2="52" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="124" y1="340" x2="136" y2="340" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <!-- 標注文字 -->
+    <text x="118" y="200" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(200,160,80,0.7)" transform="rotate(-90,118,200)" text-anchor="middle" letter-spacing="0.1em">541mm</text>
+    <!-- 水平尺寸 -->
+    <line x1="134" y1="356" x2="162" y2="356" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="134" y1="350" x2="134" y2="362" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="162" y1="350" x2="162" y2="362" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <text x="148" y="368" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(200,160,80,0.65)" text-anchor="middle" letter-spacing="0.08em">W 76mm</text>
+    <!-- 圓形 callout -->
+    <circle cx="148" cy="80" r="8" fill="none" stroke="rgba(200,160,80,0.55)" stroke-width="0.8" stroke-dasharray="2,2"/>
+    <circle cx="148" cy="80" r="3" fill="rgba(200,160,80,0.4)"/>
+  </svg>
+
+
+  <!-- ─ 特性分隔線 ─ -->
+  <div class="feat-divider"></div>
+
+  <!-- ─ Feature Icons ─ -->
+  <div class="feature-strip">
+    <!-- LASER PRECISION: 瞄準十字填色 -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="6" fill="rgba(200,160,80,0.22)"/>
+          <circle cx="10" cy="10" r="3" fill="rgba(200,160,80,0.7)"/>
+          <rect x="9" y="1" width="2" height="5" fill="#C8A050"/>
+          <rect x="9" y="14" width="2" height="5" fill="#C8A050"/>
+          <rect x="1" y="9" width="5" height="2" fill="#C8A050"/>
+          <rect x="14" y="9" width="5" height="2" fill="#C8A050"/>
+        </svg>
+      </div>
+      <div class="feat-label">LASER<br>PRECISION</div>
+    </div>
+    <!-- TOOL FREE: 手掌填色 -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 16 L7 9 C7 8.2 7.9 7.5 8.5 7.5 C9.1 7.5 9.5 8 9.5 8.5 L9.5 10.5
+                   C9.5 9.7 10.1 9 11 9 C11.7 9 12 9.6 12 10.2 L12 11
+                   C12 10.3 12.6 9.8 13.2 9.8 C13.9 9.8 14.2 10.3 14.2 11 L14.2 13.5
+                   C14.2 15.4 12.7 17 10.8 17 L9.5 17 C8.1 17 7 16 7 16Z"
+                fill="#C8A050" opacity="0.85"/>
+          <rect x="8.5" y="4" width="2" height="4" rx="1" fill="#C8A050" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="feat-label">TOOL<br>FREE</div>
+    </div>
+    <!-- ECO BIRCHWOOD: 葉子填色 -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 17 C10 17 3 13.5 3 7.5 C3 4.5 6.1 2 10 2 C13.9 2 17 4.5 17 7.5 C17 13.5 10 17 10 17Z"
+                fill="#C8A050" opacity="0.8"/>
+          <path d="M10 17 C10 17 3 13.5 3 7.5 C3 4.5 6.1 2 10 2"
+                fill="rgba(200,160,80,0.4)"/>
+          <rect x="9.2" y="10" width="1.6" height="7" fill="rgba(8,38,88,0.5)"/>
+        </svg>
+      </div>
+      <div class="feat-label">ECO<br>BIRCHWOOD</div>
+    </div>
+  </div>
+</div>
+</div><!-- /dim-wrap -->
+
+<!-- ═══ 背面 ═══ -->
+<div class="label">背面 &nbsp;·&nbsp; 28.5 × 20.5 cm</div>
+<div class="dim-wrap">
+  <div class="dim-h">
+    <div class="dim-tick"></div>
+    <div class="dim-line-h"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">285 mm</span>
+  </div>
+  <div class="dim-v">
+    <div class="dim-tick"></div>
+    <div class="dim-line-v"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">205 mm</span>
+  </div>
+<div class="face back">
+  <div class="bp-bg"></div>
+  <div class="grid-bg"></div>
+
+  <!-- 頂部 -->
+  <div class="top-bar">
+    <div class="brand">
+      <span class="brand-name">THUNK</span>
+      <span class="brand-div"></span>
+      <span class="brand-sub">WOODEN 3D PUZZLE</span>
+    </div>
+    <span class="pname-small">NEW YORK</span>
+  </div>
+  <div class="top-rule"></div>
+
+  <!-- 描述文字（左側） -->
+  <div class="desc">
+    <p>Reconstruct the iconic Manhattan skyline in birchwood — One World Trade Center, Empire State Building,
+    and the Statue of Liberty, all precision laser-cut and ready to assemble without glue or tools.
+    A display-worthy centerpiece for your desk, shelf, or studio.</p>
+  </div>
+
+  <!-- 右側規格面板 -->
+  <div class="spec-panel">
+    <div class="spec-panel-item">
+      <span class="sc-key">FINISHED SIZE</span>
+      <span class="sc-val">38 × 12 × 22 cm</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">PIECES</span>
+      <span class="sc-val">214 PCS</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">ASSEMBLY TIME</span>
+      <span class="sc-val">~ 4 HRS</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">DIFFICULTY</span>
+      <span class="sc-val">INTERMEDIATE</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">AGE</span>
+      <span class="sc-val">14+</span>
+    </div>
+  </div>
+
+  <!-- 3張照片 -->
+  <div class="photos">
+    <div class="photo-thumb">
+      <img src="ref/產品照/紐約天際線1.jpg" alt="">
+      <div class="ph-label">ASSEMBLED VIEW</div>
+    </div>
+    <div class="photo-thumb">
+      <img src="ref/產品照/紐約天際線3.jpg" alt="">
+      <div class="ph-label">DETAIL · WTC</div>
+    </div>
+    <div class="photo-thumb">
+      <img src="ref/產品照/紐約天際線5.jpg" alt="">
+      <div class="ph-label">DETAIL · COMPONENTS</div>
+    </div>
+  </div>
+
+  <!-- 底部欄 -->
+  <div class="bottom-bar">
+    <div class="mfr">
+      THUNK CO., LTD.<br>
+      MADE IN CHINA &nbsp;·&nbsp; BIRCHWOOD 3.0MM<br>
+      <span style="font-size:6px;opacity:0.6;">WARNING: SMALL PARTS · NOT FOR CHILDREN UNDER 14 · KEEP AWAY FROM FIRE</span>
+    </div>
+
+    <!-- 條碼 -->
+    <div class="barcode">
+      <div class="barcode-bars">
+        <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+        <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+        <span style="height:100%"></span><span style="height:40%"></span><span style="height:100%"></span>
+        <span style="height:90%"></span><span style="height:100%"></span><span style="height:60%"></span>
+        <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+        <span style="height:50%"></span><span style="height:100%"></span><span style="height:70%"></span>
+        <span style="height:100%"></span><span style="height:100%"></span><span style="height:90%"></span>
+        <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+      </div>
+      <div class="barcode-num">4 712345 678901</div>
+    </div>
+
+    <!-- 警告圖示（簡化） -->
+    <div class="warning">
+      AGE 14+<br>
+      CE &nbsp;·&nbsp; REACH<br>
+      COMPLIANT
+    </div>
+
+    <!-- QR -->
+    <div class="qr-wrap">
+      <div class="qr-box">
+        <span></span><span></span><span class="e"></span><span></span><span></span>
+        <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+        <span class="e"></span><span></span><span></span><span></span><span class="e"></span>
+        <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+        <span></span><span></span><span class="e"></span><span></span><span></span>
+      </div>
+      <div class="qr-label">SCAN · MANUAL</div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /dim-wrap back -->
+
+</body>
+</html>

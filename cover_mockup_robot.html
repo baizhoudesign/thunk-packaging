@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Cover Mockup — Robot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1e1e1e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ── 封套主體 28.5 × 20.5 cm ── */
+  .cover {
+    width: 712px;
+    height: 512px;
+    background: #0E0D0A;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 72px rgba(0,0,0,0.8);
+  }
+
+  /* 網格底紋 */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,160,80,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,160,80,0.055) 1px, transparent 1px);
+    background-size: 32px 32px;
+    z-index: 0;
+  }
+
+  /* 外框線 */
+  .border-outer {
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(200,160,80,0.5);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* 對位角線 */
+  .reg-mark { position: absolute; width: 18px; height: 18px; z-index: 10; }
+  .reg-mark::before, .reg-mark::after { content: ''; position: absolute; background: rgba(200,160,80,0.6); }
+  .reg-mark.tl { top: 5px; left: 5px; }
+  .reg-mark.tr { top: 5px; right: 5px; }
+  .reg-mark.bl { bottom: 5px; left: 5px; }
+  .reg-mark.br { bottom: 5px; right: 5px; }
+  .reg-mark.tl::before { width: 1px; height: 11px; top: 3px; left: 0; }
+  .reg-mark.tl::after  { width: 11px; height: 1px; top: 0; left: 3px; }
+  .reg-mark.tr::before { width: 1px; height: 11px; top: 3px; right: 0; }
+  .reg-mark.tr::after  { width: 11px; height: 1px; top: 0; right: 3px; }
+  .reg-mark.bl::before { width: 1px; height: 11px; bottom: 3px; left: 0; }
+  .reg-mark.bl::after  { width: 11px; height: 1px; bottom: 0; left: 3px; }
+  .reg-mark.br::before { width: 1px; height: 11px; bottom: 3px; right: 0; }
+  .reg-mark.br::after  { width: 11px; height: 1px; bottom: 0; right: 3px; }
+
+  /* ── 頂部欄 ── */
+  .top-bar {
+    position: absolute;
+    top: 20px;
+    left: 26px;
+    right: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+  }
+  .top-bar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .brand-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: #FFFFFF;
+    letter-spacing: 0.25em;
+    line-height: 1;
+  }
+  .brand-sub {
+    font-size: 7.5px;
+    color: rgba(200,160,80,0.6);
+    letter-spacing: 0.22em;
+  }
+  .top-bar-right {
+    font-size: 7.5px;
+    color: rgba(200,160,80,0.5);
+    letter-spacing: 0.15em;
+    text-align: right;
+    line-height: 1.8;
+  }
+  .top-rule {
+    position: absolute;
+    top: 68px;
+    left: 26px;
+    right: 26px;
+    height: 1px;
+    background: linear-gradient(90deg, #C8A050 0%, rgba(200,160,80,0.15) 100%);
+    z-index: 5;
+  }
+
+  /* ── 左側：產品照 ── */
+  .photo-area {
+    position: absolute;
+    top: 60px;
+    left: -30px;
+    width: 480px;
+    bottom: 60px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 16px 40px rgba(0,0,0,0.8)) brightness(1.1);
+  }
+
+  /* ── 垂直分隔線 ── */
+  .v-rule {
+    position: absolute;
+    top: 74px;
+    left: 432px;
+    width: 1px;
+    bottom: 72px;
+    background: linear-gradient(180deg, transparent 0%, #C8A050 20%, #C8A050 80%, transparent 100%);
+    z-index: 4;
+  }
+
+  /* ── 右側：資訊區 ── */
+  .info-area {
+    position: absolute;
+    top: 76px;
+    left: 446px;
+    right: 26px;
+    bottom: 72px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* 產品標題 */
+  .title-area { }
+  .product-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 62px;
+    color: #FFFFFF;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 40px rgba(200,160,80,0.3);
+  }
+  .product-sub {
+    font-size: 8px;
+    color: rgba(200,160,80,0.6);
+    letter-spacing: 0.2em;
+    line-height: 1.6;
+  }
+
+  /* Spec 表 */
+  .spec-table {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid rgba(200,160,80,0.3);
+    padding-top: 10px;
+  }
+  .spec-col {
+    flex: 1;
+    border-right: 1px solid rgba(200,160,80,0.2);
+    padding-right: 10px;
+    margin-right: 10px;
+  }
+  .spec-col:last-child { border-right: none; margin-right: 0; }
+  .spec-key { font-size: 7px; color: rgba(200,160,80,0.5); letter-spacing: 0.15em; margin-bottom: 3px; }
+  .spec-val { font-size: 12px; color: #F0E0B0; letter-spacing: 0.05em; font-weight: bold; }
+  .diff-dots { display: flex; gap: 3px; margin-top: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #C8A050; }
+  .dot.on { background: #C8A050; }
+
+  /* ── 底部欄 ── */
+  .bottom-rule {
+    position: absolute;
+    bottom: 62px;
+    left: 26px;
+    right: 26px;
+    height: 1px;
+    background: rgba(200,160,80,0.3);
+    z-index: 5;
+  }
+  .bottom-bar {
+    position: absolute;
+    bottom: 22px;
+    left: 26px;
+    right: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+  }
+  .bottom-left { font-size: 7.5px; color: rgba(200,160,80,0.4); letter-spacing: 0.18em; }
+  .bottom-center { font-size: 7px; color: rgba(200,160,80,0.25); letter-spacing: 0.2em; }
+  .bottom-right { font-size: 7.5px; color: rgba(200,160,80,0.4); letter-spacing: 0.15em; }
+
+  /* 尺寸標注線（底部照片下方） */
+  .dim-line {
+    position: absolute;
+    bottom: 68px;
+    left: 40px;
+    width: 330px;
+    height: 1px;
+    background: rgba(200,160,80,0.35);
+    z-index: 6;
+  }
+  .dim-line::before {
+    content: '';
+    position: absolute;
+    left: 0; top: -4px;
+    width: 1px; height: 9px;
+    background: rgba(200,160,80,0.35);
+  }
+  .dim-line::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -4px;
+    width: 1px; height: 9px;
+    background: rgba(200,160,80,0.35);
+  }
+  .dim-text {
+    position: absolute;
+    bottom: 71px;
+    left: 180px;
+    font-size: 7px;
+    color: rgba(200,160,80,0.4);
+    letter-spacing: 0.12em;
+    background: #0E0D0A;
+    padding: 0 4px;
+    z-index: 7;
+  }
+
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="grid-bg"></div>
+  <div class="border-outer"></div>
+  <div class="reg-mark tl"></div>
+  <div class="reg-mark tr"></div>
+  <div class="reg-mark bl"></div>
+  <div class="reg-mark br"></div>
+
+  <!-- 頂部欄 -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="brand-name">THUNK</span>
+      <span class="brand-sub">WOODEN 3D PUZZLE &nbsp;·&nbsp; MECHANICAL SERIES</span>
+    </div>
+    <div class="top-bar-right">MODEL NO. &nbsp;WP-MECH-001<br>REV. A &nbsp;·&nbsp; 2026</div>
+  </div>
+  <div class="top-rule"></div>
+
+  <!-- 左：產品照 -->
+  <div class="photo-area">
+    <img src="ref/產品照/機器人.png" alt="Robot">
+  </div>
+
+  <!-- 垂直分隔 -->
+  <div class="v-rule"></div>
+
+  <!-- 右：資訊 -->
+  <div class="info-area">
+    <div class="title-area">
+      <div class="product-name">ROBOT</div>
+      <div class="product-sub">BIRCHWOOD &nbsp;·&nbsp; 3.0MM &nbsp;·&nbsp; PRECISION CUT</div>
+    </div>
+
+    <div class="spec-table">
+      <div class="spec-col">
+        <div class="spec-key">PIECES</div>
+        <div class="spec-val">186 PCS</div>
+      </div>
+      <div class="spec-col">
+        <div class="spec-key">AGE</div>
+        <div class="spec-val">14+</div>
+      </div>
+      <div class="spec-col">
+        <div class="spec-key">DIFFICULTY</div>
+        <div class="diff-dots">
+          <div class="dot on"></div>
+          <div class="dot on"></div>
+          <div class="dot on"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部尺寸線 -->
+  <div class="dim-line"></div>
+  <div class="dim-text">W 285mm</div>
+
+  <!-- 底部欄 -->
+  <div class="bottom-rule"></div>
+  <div class="bottom-bar">
+    <div class="bottom-left">3D WOODEN PUZZLE</div>
+    <div class="bottom-center">· · ·</div>
+    <div class="bottom-right">STEM &nbsp;·&nbsp; DISPLAY &nbsp;·&nbsp; COLLECT</div>
+  </div>
+</div>
+</body>
+</html>
