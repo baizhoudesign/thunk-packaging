@@ -141,9 +141,9 @@
     position:absolute; top:50%; transform:translateY(-52%); left:22px; z-index:101;
   }
   .front .pname {
-    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:128px;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:52px;
     color:#FFF; letter-spacing:-0.02em; line-height:0.88;
-    max-width:272px; overflow:hidden;
+    max-width:260px; overflow:hidden;
   }
   .front .psub { font-size:7px; color:rgba(200,160,80,0.5); letter-spacing:0.22em; display:block; margin-top:12px; }
   /* 右下規格 */
@@ -276,14 +276,29 @@
   .back .spec-row { display:none; }
   /* 底部欄 */
   .back .bottom-bar {
-    position:absolute; bottom:18px; left:26px; right:26px;
-    display:flex; align-items:center; gap:12px; z-index:5;
+    position:absolute; bottom:14px; left:26px; right:26px;
+    z-index:5;
+    border-top:1px solid rgba(200,160,80,0.25);
+    padding-top:10px;
+    display:flex; align-items:flex-start; gap:0;
   }
-  .back .mfr { flex:1; font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.15em; line-height:1.8; }
+  .back .mfr {
+    flex:1; font-size:7.5px; color:rgba(200,160,80,0.6); letter-spacing:0.12em; line-height:1.9;
+  }
+  .back .mfr strong { color:rgba(200,160,80,0.8); font-weight:600; font-size:8px; }
+  .back .mfr .mfr-warn {
+    display:block; margin-top:4px; font-size:5.5px; color:rgba(200,160,80,0.3); letter-spacing:0.08em; line-height:1.6;
+  }
+  /* 右側群組：條碼+QR+警告 */
+  .back .bottom-right {
+    display:flex; align-items:flex-start; gap:14px;
+    padding-left:14px;
+    border-left:1px solid rgba(200,160,80,0.15);
+  }
   /* 條碼 */
   .back .barcode { display:flex; flex-direction:column; align-items:center; gap:3px; }
   .back .barcode-bars {
-    display:flex; gap:1px; align-items:flex-end; height:28px;
+    display:flex; gap:1px; align-items:flex-end; height:30px;
   }
   .back .barcode-bars span {
     display:block; background:rgba(200,160,80,0.6); width:1.5px;
@@ -292,7 +307,7 @@
   /* QR */
   .back .qr-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
   .back .qr-box {
-    width:32px; height:32px;
+    width:34px; height:34px;
     border:1px solid rgba(200,160,80,0.4);
     display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
     padding:3px;
@@ -302,8 +317,12 @@
   .back .qr-label { font-size:6px; color:rgba(200,160,80,0.4); letter-spacing:0.1em; }
   /* 警告 */
   .back .warning {
-    font-size:6.5px; color:rgba(200,160,80,0.35); letter-spacing:0.1em; line-height:1.7;
-    border-left:1px solid rgba(200,160,80,0.25); padding-left:10px;
+    font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.1em; line-height:1.8;
+  }
+  .back .warning .warn-icon {
+    display:inline-block; width:14px; height:14px; border:1px solid rgba(200,160,80,0.4);
+    border-radius:50%; text-align:center; line-height:13px; font-size:8px; color:rgba(200,160,80,0.6);
+    margin-bottom:3px;
   }
 
   /* ════════════════════════════════
@@ -383,18 +402,18 @@
   .front .feat-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
   .front .feat-icon {
     width:26px; height:26px;
-    border:1px solid rgba(200,160,80,0.42);
-    background:rgba(200,160,80,0.05);
+    border:none;
+    background:#D4772C;
     display:flex; align-items:center; justify-content:center;
     position:relative;
+    border-radius:2px;
   }
   .front .feat-icon::after {
-    content:''; position:absolute; inset:2px;
-    border:1px solid rgba(200,160,80,0.1);
+    display:none;
   }
   .front .feat-label {
     font-family:'Share Tech Mono',monospace; font-size:4.5px;
-    color:rgba(200,160,80,0.55); letter-spacing:0.08em;
+    color:rgba(255,255,255,0.85); letter-spacing:0.08em;
     text-align:center; line-height:1.5; width:38px;
   }
 
@@ -453,7 +472,7 @@
   </div>
 
   <div class="product-name">
-    <span class="pname">NEW<br>YORK</span>
+    <span class="pname">NEW YORK<br>SKYLINE</span>
     <span class="psub">BIRCHWOOD &nbsp;·&nbsp; 3.0MM &nbsp;·&nbsp; LASER CUT</span>
   </div>
 
@@ -696,7 +715,7 @@
       <span class="brand-div"></span>
       <span class="brand-sub">WOODEN 3D PUZZLE</span>
     </div>
-    <span class="pname-small">NEW YORK</span>
+    <span class="pname-small">NEW YORK SKYLINE</span>
   </div>
   <div class="top-rule"></div>
 
@@ -750,43 +769,45 @@
   <!-- 底部欄 -->
   <div class="bottom-bar">
     <div class="mfr">
-      THUNK CO., LTD.<br>
-      MADE IN CHINA &nbsp;·&nbsp; BIRCHWOOD 3.0MM<br>
-      <span style="font-size:6px;opacity:0.6;">WARNING: SMALL PARTS · NOT FOR CHILDREN UNDER 14 · KEEP AWAY FROM FIRE</span>
+      <strong>THUNK CO., LTD.</strong><br>
+      MADE IN CHINA &nbsp;·&nbsp; BIRCHWOOD 3.0MM
+      <span class="mfr-warn">WARNING: SMALL PARTS · NOT FOR CHILDREN UNDER 14 · KEEP AWAY FROM FIRE</span>
     </div>
 
-    <!-- 條碼 -->
-    <div class="barcode">
-      <div class="barcode-bars">
-        <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
-        <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
-        <span style="height:100%"></span><span style="height:40%"></span><span style="height:100%"></span>
-        <span style="height:90%"></span><span style="height:100%"></span><span style="height:60%"></span>
-        <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
-        <span style="height:50%"></span><span style="height:100%"></span><span style="height:70%"></span>
-        <span style="height:100%"></span><span style="height:100%"></span><span style="height:90%"></span>
-        <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+    <div class="bottom-right">
+      <!-- 警告 -->
+      <div class="warning">
+        <div class="warn-icon">!</div>
+        AGE 14+<br>
+        CE · REACH
       </div>
-      <div class="barcode-num">4 712345 678901</div>
-    </div>
 
-    <!-- 警告圖示（簡化） -->
-    <div class="warning">
-      AGE 14+<br>
-      CE &nbsp;·&nbsp; REACH<br>
-      COMPLIANT
-    </div>
-
-    <!-- QR -->
-    <div class="qr-wrap">
-      <div class="qr-box">
-        <span></span><span></span><span class="e"></span><span></span><span></span>
-        <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
-        <span class="e"></span><span></span><span></span><span></span><span class="e"></span>
-        <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
-        <span></span><span></span><span class="e"></span><span></span><span></span>
+      <!-- 條碼 -->
+      <div class="barcode">
+        <div class="barcode-bars">
+          <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+          <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+          <span style="height:100%"></span><span style="height:40%"></span><span style="height:100%"></span>
+          <span style="height:90%"></span><span style="height:100%"></span><span style="height:60%"></span>
+          <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+          <span style="height:50%"></span><span style="height:100%"></span><span style="height:70%"></span>
+          <span style="height:100%"></span><span style="height:100%"></span><span style="height:90%"></span>
+          <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+        </div>
+        <div class="barcode-num">4 712345 678901</div>
       </div>
-      <div class="qr-label">SCAN · MANUAL</div>
+
+      <!-- QR -->
+      <div class="qr-wrap">
+        <div class="qr-box">
+          <span></span><span></span><span class="e"></span><span></span><span></span>
+          <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+          <span class="e"></span><span></span><span></span><span></span><span class="e"></span>
+          <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+          <span></span><span></span><span class="e"></span><span></span><span></span>
+        </div>
+        <div class="qr-label">SCAN · MANUAL</div>
+      </div>
     </div>
   </div>
 
