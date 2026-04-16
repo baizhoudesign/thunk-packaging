@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Robot Packaging — Front & Back</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 32px;
+    gap: 40px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .label {
+    color: #888;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    width: 712px;
+    text-align: left;
+  }
+  .face { position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.25); outline: 1px solid #ccc; }
+
+  /* ════════════════════════════════
+     外圍尺寸標注
+  ════════════════════════════════ */
+  .dim-wrap {
+    position:relative; display:inline-block;
+  }
+  .dim-h {
+    position:absolute; top:-22px; left:0; right:0;
+    display:flex; align-items:center; height:14px;
+  }
+  .dim-h .dim-tick { width:1px; height:10px; background:rgba(150,150,150,0.5); }
+  .dim-h .dim-line-h { flex:1; height:1px; background:rgba(150,150,150,0.4); }
+  .dim-h .dim-text {
+    position:absolute; left:50%; transform:translateX(-50%); top:-2px;
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    color:rgba(120,120,120,0.7); letter-spacing:0.1em;
+    background:#f0f0f0; padding:0 6px;
+  }
+  .dim-v {
+    position:absolute; top:0; right:-32px; bottom:0;
+    display:flex; flex-direction:column; align-items:center; width:14px;
+  }
+  .dim-v .dim-tick { width:10px; height:1px; background:rgba(150,150,150,0.5); }
+  .dim-v .dim-line-v { flex:1; width:1px; background:rgba(150,150,150,0.4); }
+  .dim-v .dim-text {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%) rotate(-90deg);
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    color:rgba(120,120,120,0.7); letter-spacing:0.1em;
+    background:#f0f0f0; padding:0 6px; white-space:nowrap;
+  }
+
+  /* ════════════════════════════════
+     共用樣式
+  ════════════════════════════════ */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(200,160,80,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,160,80,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    z-index: 0; pointer-events: none;
+  }
+  .border-outer { display: none; }
+  .reg { display: none; }
+
+  /* ════════════════════════════════
+     正面 FRONT
+  ════════════════════════════════ */
+  .front {
+    width: 712px; height: 512px;
+    background: #080706;
+  }
+  .front .photo-full {
+    position: absolute; inset: 0; z-index: 100;
+  }
+  .front .photo-full img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: 60% 50%;
+    filter: brightness(1.05);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 200px, rgba(0,0,0,0.3) 260px, rgba(0,0,0,0.7) 320px, black 380px);
+    mask-image: linear-gradient(to right, transparent 0%, transparent 200px, rgba(0,0,0,0.3) 260px, rgba(0,0,0,0.7) 320px, black 380px);
+  }
+  /* 側面插畫條 */
+  .front .side-strip {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 82px;
+    z-index: 99; overflow: hidden;
+    display: none; /* 備用：側面用 Box.svg */
+  }
+  .front .side-strip img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .front .ov-top {
+    position: absolute; top:0;left:0;right:0;height:60px;
+    background: linear-gradient(to bottom, rgba(6,5,4,0.6) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .front .ov-bottom {
+    position: absolute; bottom:0; left:0; right:0; height:80px;
+    background: linear-gradient(to top, rgba(6,5,4,0.5) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .front .ov-left { display:none; }
+  .front .ov-right {
+    position: absolute; top:0;right:0;bottom:0;width:120px;
+    background: linear-gradient(to left, rgba(6,5,4,0.5) 0%, transparent 100%);
+    z-index: 2;
+  }
+  /* 頂部 */
+  .front .top-bar {
+    position: absolute; top:22px; left:26px; right:26px;
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:101;
+  }
+  .front .brand { display:flex; align-items:center; gap:10px; }
+  .front .brand-name {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    color:rgba(255,255,255,0.85); letter-spacing:0.35em;
+  }
+  .front .brand-div { width:1px; height:10px; background:rgba(200,160,80,0.4); }
+  .front .brand-sub { font-size:7px; color:rgba(200,160,80,0.55); letter-spacing:0.2em; }
+  .front .series { font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.2em; text-align:right; line-height:1.9; }
+  /* 產品名 */
+  .front .product-name {
+    position:absolute; top:50%; transform:translateY(-52%); left:22px; z-index:101;
+  }
+  .front .pname {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:52px;
+    color:#FFF; letter-spacing:-0.02em; line-height:0.88;
+    max-width:260px; overflow:hidden;
+  }
+  .front .psub { font-size:6.5px; color:rgba(200,160,80,0.5); letter-spacing:0.22em; display:block; margin-top:10px; }
+  /* 右下規格 */
+  .front .spec-wrap {
+    position:absolute; bottom:20px; right:20px; z-index:101;
+    display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+    background: rgba(5,3,1,0.72);
+    padding: 8px 12px;
+    border-left: 1px solid rgba(200,160,80,0.3);
+  }
+  .spec-item { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .spec-key { font-size:6.5px; color:rgba(200,160,80,0.45); letter-spacing:0.18em; }
+  .spec-val { font-size:16px; color:#F0E0B0; font-weight:bold; letter-spacing:0.04em; line-height:1; }
+  .diff-dots { display:flex; gap:4px; }
+  .dot { width:8px; height:8px; border-radius:50%; border:1px solid rgba(200,160,80,0.6); }
+  .dot.on { background:#C8A050; border-color:#C8A050; }
+  /* 工程 SVG */
+  .eng-svg {
+    position:absolute; inset:0; width:100%; height:100%;
+    z-index:101; pointer-events:none;
+  }
+
+  /* ════════════════════════════════
+     背面 BACK — Blueprint 風格
+  ════════════════════════════════ */
+  .back {
+    width: 712px; height: 512px;
+    background: #080706;
+  }
+  .back .bp-bg {
+    position:absolute; inset:0;
+    background:
+      linear-gradient(rgba(140,190,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,190,255,0.04) 1px, transparent 1px),
+      rgba(8,28,65,0.55);
+    background-size: 22px 22px, 22px 22px, auto;
+    z-index:1;
+  }
+  .back .top-bar {
+    position:absolute; top:22px; left:26px; right:26px;
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:5;
+  }
+  .back .brand { display:flex; align-items:center; gap:10px; }
+  .back .brand-name {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    color:rgba(255,255,255,0.9); letter-spacing:0.35em;
+  }
+  .back .brand-div { width:1px; height:10px; background:rgba(200,160,80,0.45); }
+  .back .brand-sub { font-size:7px; color:rgba(200,160,80,0.65); letter-spacing:0.2em; }
+  .back .pname-small {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px;
+    color:rgba(255,255,255,0.75); letter-spacing:0.15em;
+  }
+  .back .top-rule {
+    position:absolute; top:50px; left:26px; right:26px; height:1px;
+    background:linear-gradient(90deg, rgba(200,160,80,0.45) 0%, rgba(200,160,80,0.08) 100%);
+    z-index:5;
+  }
+  .back .desc {
+    position:absolute; top:58px; left:26px; right:200px;
+    z-index:5;
+  }
+  .back .desc p {
+    font-family:'Rajdhani',sans-serif; font-weight:400; font-size:10.5px;
+    color:rgba(255,255,255,0.6); letter-spacing:0.04em; line-height:1.6;
+  }
+  .back .photos {
+    position:absolute; top:155px; left:26px; right:26px; height:180px;
+    display:flex; gap:8px; z-index:5;
+  }
+  .back .photo-thumb {
+    flex:1; position:relative; overflow:hidden;
+    border:1px solid rgba(200,160,80,0.2);
+  }
+  .back .photo-thumb img {
+    width:100%; height:100%; object-fit:cover; object-position:center;
+    filter:brightness(0.85);
+  }
+  .back .photo-thumb .ph-label {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(6,5,4,0.75); padding:4px 6px;
+    font-size:6.5px; color:rgba(200,160,80,0.7); letter-spacing:0.15em;
+  }
+  .back .photo-thumb::before {
+    content:''; position:absolute; top:5px; left:5px;
+    width:12px; height:12px; z-index:2; pointer-events:none;
+    border-top:1px solid rgba(200,160,80,0.5);
+    border-left:1px solid rgba(200,160,80,0.5);
+  }
+  .back .photo-thumb::after {
+    content:''; position:absolute; bottom:22px; right:5px;
+    width:12px; height:12px; z-index:2; pointer-events:none;
+    border-bottom:1px solid rgba(200,160,80,0.3);
+    border-right:1px solid rgba(200,160,80,0.3);
+  }
+  /* 右側規格面板 */
+  .back .spec-panel {
+    position:absolute; top:58px; right:26px; width:155px;
+    z-index:5;
+    display:flex; flex-direction:column; gap:0;
+  }
+  .back .spec-panel-item {
+    padding:10px 14px;
+    border-bottom:1px solid rgba(200,160,80,0.15);
+  }
+  .back .spec-panel-item:first-child {
+    border-top:1px solid rgba(200,160,80,0.25);
+  }
+  .back .sc-key {
+    font-size:6px; color:rgba(200,160,80,0.55); letter-spacing:0.18em; margin-bottom:4px;
+    display:block;
+  }
+  .back .sc-val {
+    font-size:13px; color:#F0E0B0; font-weight:bold; letter-spacing:0.05em;
+    font-family:'Rajdhani',sans-serif;
+  }
+  /* 底部欄 */
+  .back .bottom-bar {
+    position:absolute; bottom:14px; left:26px; right:26px;
+    z-index:5;
+    border-top:1px solid rgba(200,160,80,0.25);
+    padding-top:10px;
+    display:flex; align-items:flex-start; gap:0;
+  }
+  .back .mfr {
+    flex:1; font-size:7.5px; color:rgba(200,160,80,0.6); letter-spacing:0.12em; line-height:1.9;
+  }
+  .back .mfr strong { color:rgba(200,160,80,0.8); font-weight:600; font-size:8px; }
+  .back .mfr .mfr-warn {
+    display:block; margin-top:4px; font-size:5.5px; color:rgba(200,160,80,0.3); letter-spacing:0.08em; line-height:1.6;
+  }
+  .back .bottom-right {
+    display:flex; align-items:flex-start; gap:14px;
+    padding-left:14px;
+    border-left:1px solid rgba(200,160,80,0.15);
+  }
+  .back .barcode { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .back .barcode-bars {
+    display:flex; gap:1px; align-items:flex-end; height:30px;
+  }
+  .back .barcode-bars span {
+    display:block; background:rgba(200,160,80,0.6); width:1.5px;
+  }
+  .back .barcode-num { font-size:6px; color:rgba(200,160,80,0.45); letter-spacing:0.08em; }
+  .back .qr-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .back .qr-box {
+    width:34px; height:34px;
+    border:1px solid rgba(200,160,80,0.4);
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+    padding:3px;
+  }
+  .back .qr-box span { background:rgba(200,160,80,0.5); border-radius:0.5px; }
+  .back .qr-box span.e { background:transparent; }
+  .back .qr-label { font-size:6px; color:rgba(200,160,80,0.4); letter-spacing:0.1em; }
+  .back .warning {
+    font-size:7px; color:rgba(200,160,80,0.45); letter-spacing:0.1em; line-height:1.8;
+  }
+  .back .warning .warn-icon {
+    display:inline-block; width:14px; height:14px; border:1px solid rgba(200,160,80,0.4);
+    border-radius:50%; text-align:center; line-height:13px; font-size:8px; color:rgba(200,160,80,0.6);
+    margin-bottom:3px;
+  }
+
+  /* ════════════════════════════════
+     Category Tags (正面右上)
+  ════════════════════════════════ */
+  .front .cat-tags { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .front .cat-tag {
+    font-family:'Share Tech Mono',monospace; font-size:6px;
+    color:rgba(200,160,80,0.45); border:1px solid rgba(200,160,80,0.22);
+    padding:2px 8px; letter-spacing:0.2em;
+  }
+
+  /* ════════════════════════════════
+     Layers — 色塊堆疊
+  ════════════════════════════════ */
+  .front .accent-top { display:none; }
+  .front .zone-div {
+    position:absolute; top:44px; left:246px; bottom:14px; width:1px;
+    background:linear-gradient(to bottom,
+      rgba(200,160,80,0.28) 0%,
+      rgba(200,160,80,0.12) 50%,
+      rgba(200,160,80,0.02) 100%);
+    z-index:5;
+  }
+  .front .bottom-band { display:none; }
+
+  /* 左側 BLUEPRINT 色塊 */
+  .front .panel-left {
+    position:absolute; top:0; left:0; bottom:0; width:300px;
+    background:
+      linear-gradient(rgba(140,190,255,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,190,255,0.055) 1px, transparent 1px),
+      rgba(8,38,88,0.88);
+    background-size: 22px 22px, 22px 22px, auto;
+    border-right:1px solid rgba(80,140,240,0.3);
+    z-index:3;
+  }
+  .front .panel-left::before { display:none; }
+  /* 標題帶 — blueprint 亮區 */
+  .front .title-band {
+    position:absolute; top:148px; left:0; width:300px; height:170px;
+    background: linear-gradient(to bottom,
+      rgba(30,80,180,0.2) 0%,
+      rgba(40,100,210,0.25) 50%,
+      rgba(25,70,160,0.15) 100%);
+    border-top:1px solid rgba(100,160,255,0.35);
+    border-bottom:1px solid rgba(100,160,255,0.2);
+    z-index:4;
+  }
+
+  /* ════════════════════════════════
+     Feature Icon Strip (正面左下)
+  ════════════════════════════════ */
+  .front .feature-strip {
+    position:absolute; bottom:20px; left:20px;
+    display:flex; gap:14px; z-index:102; align-items:flex-start;
+  }
+  .front .feat-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .front .feat-icon {
+    width:26px; height:26px;
+    border:none;
+    background:#D4772C;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    border-radius:2px;
+  }
+  .front .feat-icon::after {
+    display:none;
+  }
+  .front .feat-label {
+    font-family:'Share Tech Mono',monospace; font-size:4.5px;
+    color:rgba(255,255,255,0.85); letter-spacing:0.08em;
+    text-align:center; line-height:1.5; width:38px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ═══ 正面 ═══ -->
+<div class="label">正面 &nbsp;·&nbsp; 28.5 × 20.5 cm</div>
+<div class="dim-wrap">
+  <div class="dim-h">
+    <div class="dim-tick"></div>
+    <div class="dim-line-h"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">285 mm</span>
+  </div>
+  <div class="dim-v">
+    <div class="dim-tick"></div>
+    <div class="dim-line-v"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">205 mm</span>
+  </div>
+<div class="face front">
+  <div class="photo-full"><img src="../客戶提供/Back.jpg" alt="Robot"></div>
+  <div class="ov-top"></div><div class="ov-bottom"></div>
+  <div class="ov-left"></div><div class="ov-right"></div>
+  <div class="grid-bg"></div>
+  <div class="border-outer"></div>
+
+  <!-- ─ COLOR BLOCK LAYERS ─ -->
+  <div class="accent-top"></div>
+  <div class="panel-left"></div>
+  <div class="title-band"></div>
+  <div class="zone-div"></div>
+  <div class="bottom-band"></div>
+
+  <div class="top-bar">
+    <div class="brand">
+      <span class="brand-name">THUNK</span>
+      <span class="brand-div"></span>
+      <span class="brand-sub">WOODEN 3D PUZZLE</span>
+    </div>
+    <div class="cat-tags">
+      <span class="cat-tag">MECHANICAL</span>
+      <span class="cat-tag">ENGINEERING</span>
+      <span class="cat-tag">ROBOTICS</span>
+    </div>
+  </div>
+
+  <div class="product-name">
+    <span class="pname">MECH ROBOT<br>WALKER</span>
+    <span class="psub">BIRCHWOOD &nbsp;·&nbsp; 3.0MM &nbsp;·&nbsp; LASER CUT</span>
+  </div>
+
+  <div class="spec-wrap">
+    <div class="spec-item">
+      <span class="spec-key">PIECES</span>
+      <span class="spec-val">212 PCS</span>
+    </div>
+    <div class="spec-item">
+      <span class="spec-key">DIFFICULTY</span>
+      <div class="diff-dots">
+        <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+        <div class="dot on"></div><div class="dot"></div>
+      </div>
+    </div>
+    <div class="spec-item">
+      <span class="spec-key">AGE</span>
+      <span class="spec-val">14+</span>
+    </div>
+  </div>
+
+  <!-- 工程介面 — Blueprint 機器人結構標注 -->
+  <svg class="eng-svg" viewBox="0 0 712 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        .bp-line { stroke:rgba(120,180,255,0.6); stroke-width:0.8; }
+        .bp-dash { stroke:rgba(120,180,255,0.5); stroke-width:0.8; stroke-dasharray:3,2; }
+        .bp-dot  { fill:rgba(120,180,255,0.8); }
+        .bp-ring { fill:none; stroke:rgba(120,180,255,0.6); stroke-width:0.8; }
+        .bp-text { font-family:'Share Tech Mono',monospace; fill:rgba(180,215,255,0.85); letter-spacing:0.08em; }
+        .bp-dim  { font-family:'Share Tech Mono',monospace; fill:rgba(120,180,255,0.65); letter-spacing:0.06em; }
+        .bp-box  { fill:rgba(8,30,70,0.65); stroke:rgba(120,180,255,0.45); stroke-width:0.7; }
+      </style>
+    </defs>
+
+    <!-- ── HEAD UNIT ── -->
+    <circle cx="470" cy="130" r="3" class="bp-ring"/>
+    <circle cx="470" cy="130" r="1.2" class="bp-dot"/>
+    <line x1="473" y1="128" x2="540" y2="110" class="bp-dash"/>
+    <line x1="540" y1="110" x2="600" y2="110" class="bp-line"/>
+    <rect x="602" y="98" width="82" height="26" rx="1" class="bp-box"/>
+    <line x1="602" y1="112" x2="684" y2="112" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="612" y="110" font-size="7.5" class="bp-text">HEAD UNIT</text>
+    <text x="612" y="120" font-size="6" class="bp-dim">SENSOR ARRAY</text>
+
+    <!-- ── ARM UNIT ── -->
+    <circle cx="420" cy="230" r="3" class="bp-ring"/>
+    <circle cx="420" cy="230" r="1.2" class="bp-dot"/>
+    <line x1="423" y1="232" x2="540" y2="250" class="bp-dash"/>
+    <line x1="540" y1="250" x2="600" y2="250" class="bp-line"/>
+    <rect x="602" y="238" width="82" height="26" rx="1" class="bp-box"/>
+    <line x1="602" y1="252" x2="684" y2="252" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="612" y="250" font-size="7.5" class="bp-text">ARM UNIT</text>
+    <text x="612" y="260" font-size="6" class="bp-dim">HOOK GRIPPER</text>
+
+    <!-- ── LEG ASSEMBLY ── -->
+    <circle cx="460" cy="370" r="3" class="bp-ring"/>
+    <circle cx="460" cy="370" r="1.2" class="bp-dot"/>
+    <line x1="463" y1="368" x2="540" y2="380" class="bp-dash"/>
+    <line x1="540" y1="380" x2="600" y2="380" class="bp-line"/>
+    <rect x="602" y="368" width="82" height="26" rx="1" class="bp-box"/>
+    <line x1="602" y1="382" x2="684" y2="382" stroke="rgba(120,180,255,0.2)" stroke-width="0.5"/>
+    <text x="612" y="380" font-size="7.5" class="bp-text">LEG UNIT</text>
+    <text x="612" y="390" font-size="6" class="bp-dim">BIPEDAL WALK</text>
+
+    <!-- ── 高度尺寸線 ── -->
+    <line x1="430" y1="88" x2="430" y2="435" stroke="rgba(120,180,255,0.2)" stroke-width="0.7"/>
+    <line x1="426" y1="88" x2="434" y2="88" stroke="rgba(120,180,255,0.35)" stroke-width="0.7"/>
+    <line x1="426" y1="435" x2="434" y2="435" stroke="rgba(120,180,255,0.35)" stroke-width="0.7"/>
+    <text x="420" y="265" font-size="6" class="bp-dim" transform="rotate(-90,420,265)" text-anchor="middle">H 280mm</text>
+
+    <!-- ── 底部寬度尺寸線 ── -->
+    <line x1="400" y1="455" x2="510" y2="455" stroke="rgba(120,180,255,0.2)" stroke-width="0.7"/>
+    <line x1="400" y1="450" x2="400" y2="460" stroke="rgba(120,180,255,0.3)" stroke-width="0.7"/>
+    <line x1="510" y1="450" x2="510" y2="460" stroke="rgba(120,180,255,0.3)" stroke-width="0.7"/>
+    <text x="455" y="452" font-size="6" class="bp-dim" text-anchor="middle">W 120mm</text>
+
+    <!-- ── 裝飾：坐標軸 ── -->
+    <g transform="translate(410,450)" opacity="0.3">
+      <line x1="0" y1="0" x2="16" y2="0" stroke="rgba(120,180,255,0.8)" stroke-width="0.8"/>
+      <line x1="0" y1="0" x2="0" y2="-16" stroke="rgba(120,180,255,0.8)" stroke-width="0.8"/>
+      <polygon points="16,0 13,-2 13,2" fill="rgba(120,180,255,0.7)"/>
+      <polygon points="0,-16 -2,-13 2,-13" fill="rgba(120,180,255,0.7)"/>
+      <text x="16" y="6" font-size="5" fill="rgba(120,180,255,0.5)" font-family="Share Tech Mono,monospace">X</text>
+      <text x="-6" y="-16" font-size="5" fill="rgba(120,180,255,0.5)" font-family="Share Tech Mono,monospace">Y</text>
+    </g>
+
+    <!-- Feature strip 上方分隔 -->
+    <line x1="22" y1="424" x2="270" y2="424" stroke="rgba(120,180,255,0.15)" stroke-width="0.7" stroke-dasharray="3,5"/>
+  </svg>
+
+  <!-- Blueprint 機器人白線輪廓 (在左側藍色面板內) -->
+  <svg style="position:absolute;top:0;left:0;width:300px;height:100%;z-index:5;pointer-events:none;overflow:hidden;" viewBox="0 0 300 512" xmlns="http://www.w3.org/2000/svg">
+    <!-- 地面線 -->
+    <line x1="40" y1="420" x2="260" y2="420" stroke="rgba(160,200,255,0.25)" stroke-width="0.8"/>
+
+    <!--
+      機器人比例參考 (Back.jpg):
+      - 頭部：很大的方盒，佔整體高度約 25%，寬度接近軀幹
+      - 天線：兩根，從頭頂伸出，左短右長
+      - 軀幹：略窄於頭部，短而粗壯，約佔 15%
+      - 手臂：從軀幹兩側伸出，有肘關節，末端為圓弧鉤爪
+      - 腰部：窄連接件
+      - 大腿：粗短，約佔 15%
+      - 小腿：更短，帶膝關節
+      - 腳掌：寬大平板，有鋸齒紋路，比腿寬很多
+      整體比例：頭大身短腿粗，像小型工業機器人
+    -->
+
+    <!-- 天線 -->
+    <g opacity="0.75">
+      <line x1="128" y1="80" x2="128" y2="108" stroke="rgba(200,230,255,0.8)" stroke-width="0.8"/>
+      <line x1="160" y1="72" x2="160" y2="108" stroke="rgba(200,230,255,0.8)" stroke-width="0.8"/>
+      <circle cx="128" cy="77" r="2.5" fill="none" stroke="rgba(200,230,255,0.7)" stroke-width="0.7"/>
+      <circle cx="160" cy="69" r="2.5" fill="none" stroke="rgba(200,230,255,0.7)" stroke-width="0.7"/>
+    </g>
+
+    <!-- 頭部 — 大方盒 -->
+    <g opacity="0.8">
+      <rect x="100" y="108" width="86" height="68" rx="3" fill="none" stroke="rgba(200,230,255,0.9)" stroke-width="1"/>
+      <!-- 觀察窗 (大面板) -->
+      <rect x="112" y="118" width="62" height="28" rx="2" fill="none" stroke="rgba(160,200,255,0.5)" stroke-width="0.7"/>
+      <!-- 窗內分隔 -->
+      <line x1="143" y1="118" x2="143" y2="146" stroke="rgba(160,200,255,0.3)" stroke-width="0.5"/>
+      <!-- 頭部底部細節 -->
+      <rect x="118" y="155" width="50" height="12" rx="1" fill="none" stroke="rgba(160,200,255,0.35)" stroke-width="0.5"/>
+    </g>
+
+    <!-- 軀幹 — 略窄於頭，粗壯 -->
+    <g opacity="0.7">
+      <!-- 頸部連接 -->
+      <rect x="124" y="176" width="38" height="14" fill="none" stroke="rgba(200,230,255,0.65)" stroke-width="0.7"/>
+      <!-- 主體 -->
+      <rect x="108" y="190" width="70" height="62" rx="2" fill="none" stroke="rgba(200,230,255,0.85)" stroke-width="0.9"/>
+      <!-- 胸部面板 -->
+      <rect x="120" y="198" width="46" height="24" rx="1" fill="none" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <!-- 十字標記 -->
+      <line x1="136" y1="230" x2="150" y2="230" stroke="rgba(160,200,255,0.45)" stroke-width="0.7"/>
+      <line x1="143" y1="223" x2="143" y2="237" stroke="rgba(160,200,255,0.45)" stroke-width="0.7"/>
+      <!-- 腹部小面板 -->
+      <rect x="126" y="238" width="34" height="10" rx="1" fill="none" stroke="rgba(160,200,255,0.3)" stroke-width="0.5"/>
+    </g>
+
+    <!-- 左臂 — 肩、上臂、前臂、鉤爪 -->
+    <g opacity="0.6">
+      <!-- 肩關節 -->
+      <rect x="72" y="192" width="34" height="20" rx="2" fill="none" stroke="rgba(180,220,255,0.7)" stroke-width="0.7"/>
+      <!-- 上臂 -->
+      <rect x="62" y="212" width="26" height="30" rx="1" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.7"/>
+      <!-- 肘關節圓 -->
+      <circle cx="75" cy="245" r="5" fill="none" stroke="rgba(180,220,255,0.5)" stroke-width="0.6"/>
+      <!-- 前臂 -->
+      <rect x="66" y="250" width="18" height="22" rx="1" fill="none" stroke="rgba(180,220,255,0.6)" stroke-width="0.7"/>
+      <!-- 鉤爪 -->
+      <path d="M70,272 Q62,284 58,280 M70,272 Q66,286 70,288 M78,272 Q82,286 78,288" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.8"/>
+    </g>
+
+    <!-- 右臂 — 肩、上臂、前臂、鉤爪 -->
+    <g opacity="0.6">
+      <!-- 肩關節 -->
+      <rect x="180" y="192" width="34" height="20" rx="2" fill="none" stroke="rgba(180,220,255,0.7)" stroke-width="0.7"/>
+      <!-- 上臂 -->
+      <rect x="198" y="212" width="26" height="30" rx="1" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.7"/>
+      <!-- 肘關節圓 -->
+      <circle cx="211" cy="245" r="5" fill="none" stroke="rgba(180,220,255,0.5)" stroke-width="0.6"/>
+      <!-- 前臂 -->
+      <rect x="202" y="250" width="18" height="22" rx="1" fill="none" stroke="rgba(180,220,255,0.6)" stroke-width="0.7"/>
+      <!-- 鉤爪 -->
+      <path d="M208,272 Q204,286 208,288 M216,272 Q220,286 216,288 M216,272 Q224,284 228,280" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.8"/>
+    </g>
+
+    <!-- 腰部連接 -->
+    <g opacity="0.65">
+      <rect x="122" y="252" width="42" height="16" rx="1" fill="none" stroke="rgba(200,230,255,0.6)" stroke-width="0.7"/>
+    </g>
+
+    <!-- 左大腿 -->
+    <g opacity="0.6">
+      <rect x="110" y="268" width="30" height="42" rx="2" fill="none" stroke="rgba(180,220,255,0.75)" stroke-width="0.8"/>
+      <!-- 膝關節 -->
+      <circle cx="125" cy="314" r="4" fill="none" stroke="rgba(180,220,255,0.45)" stroke-width="0.6"/>
+      <!-- 小腿 -->
+      <rect x="114" y="318" width="22" height="36" rx="1" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.7"/>
+      <!-- 腳掌 — 寬大平板 -->
+      <rect x="96" y="354" width="52" height="16" rx="2" fill="none" stroke="rgba(180,220,255,0.75)" stroke-width="0.8"/>
+      <!-- 腳底鋸齒 -->
+      <line x1="102" y1="370" x2="102" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="110" y1="370" x2="110" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="118" y1="370" x2="118" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="126" y1="370" x2="126" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="134" y1="370" x2="134" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="142" y1="370" x2="142" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <rect x="96" y="372" width="52" height="6" rx="1" fill="none" stroke="rgba(180,220,255,0.5)" stroke-width="0.6"/>
+    </g>
+
+    <!-- 右大腿 -->
+    <g opacity="0.6">
+      <rect x="146" y="268" width="30" height="42" rx="2" fill="none" stroke="rgba(180,220,255,0.75)" stroke-width="0.8"/>
+      <!-- 膝關節 -->
+      <circle cx="161" cy="314" r="4" fill="none" stroke="rgba(180,220,255,0.45)" stroke-width="0.6"/>
+      <!-- 小腿 -->
+      <rect x="150" y="318" width="22" height="36" rx="1" fill="none" stroke="rgba(180,220,255,0.65)" stroke-width="0.7"/>
+      <!-- 腳掌 — 寬大平板 -->
+      <rect x="138" y="354" width="52" height="16" rx="2" fill="none" stroke="rgba(180,220,255,0.75)" stroke-width="0.8"/>
+      <!-- 腳底鋸齒 -->
+      <line x1="144" y1="370" x2="144" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="152" y1="370" x2="152" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="160" y1="370" x2="160" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="168" y1="370" x2="168" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="176" y1="370" x2="176" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <line x1="184" y1="370" x2="184" y2="374" stroke="rgba(160,200,255,0.4)" stroke-width="0.6"/>
+      <rect x="138" y="372" width="52" height="6" rx="1" fill="none" stroke="rgba(180,220,255,0.5)" stroke-width="0.6"/>
+    </g>
+
+    <!-- 尺寸標注 — 高度 -->
+    <line x1="52" y1="69" x2="52" y2="378" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="46" y1="69" x2="58" y2="69" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="46" y1="378" x2="58" y2="378" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <text x="40" y="228" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(200,160,80,0.7)" transform="rotate(-90,40,228)" text-anchor="middle" letter-spacing="0.1em">280mm</text>
+    <!-- 寬度 -->
+    <line x1="96" y1="395" x2="190" y2="395" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="96" y1="389" x2="96" y2="401" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <line x1="190" y1="389" x2="190" y2="401" stroke="rgba(200,160,80,0.4)" stroke-width="0.7"/>
+    <text x="143" y="408" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(200,160,80,0.65)" text-anchor="middle" letter-spacing="0.08em">W 120mm</text>
+    <!-- 頭部 callout -->
+    <circle cx="143" cy="142" r="10" fill="none" stroke="rgba(200,160,80,0.5)" stroke-width="0.8" stroke-dasharray="2,2"/>
+    <circle cx="143" cy="142" r="3" fill="rgba(200,160,80,0.4)"/>
+  </svg>
+
+  <!-- ─ Feature Icons ─ -->
+  <div class="feature-strip">
+    <!-- LASER PRECISION -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="6" fill="rgba(200,160,80,0.22)"/>
+          <circle cx="10" cy="10" r="3" fill="rgba(200,160,80,0.7)"/>
+          <rect x="9" y="1" width="2" height="5" fill="#C8A050"/>
+          <rect x="9" y="14" width="2" height="5" fill="#C8A050"/>
+          <rect x="1" y="9" width="5" height="2" fill="#C8A050"/>
+          <rect x="14" y="9" width="5" height="2" fill="#C8A050"/>
+        </svg>
+      </div>
+      <div class="feat-label">LASER<br>PRECISION</div>
+    </div>
+    <!-- MOVABLE JOINTS -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="5" fill="rgba(200,160,80,0.2)"/>
+          <circle cx="10" cy="10" r="2.5" fill="#C8A050" opacity="0.85"/>
+          <rect x="1" y="8" width="5" height="4" rx="1" fill="#C8A050" opacity="0.7"/>
+          <rect x="14" y="8" width="5" height="4" rx="1" fill="#C8A050" opacity="0.7"/>
+          <rect x="8" y="1" width="4" height="5" rx="1" fill="#C8A050" opacity="0.7"/>
+          <rect x="8" y="14" width="4" height="5" rx="1" fill="#C8A050" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="feat-label">MOVABLE<br>JOINTS</div>
+    </div>
+    <!-- TOOL FREE -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 16 L7 9 C7 8.2 7.9 7.5 8.5 7.5 C9.1 7.5 9.5 8 9.5 8.5 L9.5 10.5
+                   C9.5 9.7 10.1 9 11 9 C11.7 9 12 9.6 12 10.2 L12 11
+                   C12 10.3 12.6 9.8 13.2 9.8 C13.9 9.8 14.2 10.3 14.2 11 L14.2 13.5
+                   C14.2 15.4 12.7 17 10.8 17 L9.5 17 C8.1 17 7 16 7 16Z"
+                fill="#C8A050" opacity="0.85"/>
+          <rect x="8.5" y="4" width="2" height="4" rx="1" fill="#C8A050" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="feat-label">TOOL<br>FREE</div>
+    </div>
+    <!-- ECO BIRCHWOOD -->
+    <div class="feat-item">
+      <div class="feat-icon">
+        <svg width="14" height="14" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 17 C10 17 3 13.5 3 7.5 C3 4.5 6.1 2 10 2 C13.9 2 17 4.5 17 7.5 C17 13.5 10 17 10 17Z"
+                fill="#C8A050" opacity="0.8"/>
+          <path d="M10 17 C10 17 3 13.5 3 7.5 C3 4.5 6.1 2 10 2"
+                fill="rgba(200,160,80,0.4)"/>
+          <rect x="9.2" y="10" width="1.6" height="7" fill="rgba(8,38,88,0.5)"/>
+        </svg>
+      </div>
+      <div class="feat-label">ECO<br>BIRCHWOOD</div>
+    </div>
+  </div>
+</div>
+</div><!-- /dim-wrap -->
+
+<!-- ═══ 背面 ═══ -->
+<div class="label">背面 &nbsp;·&nbsp; 28.5 × 20.5 cm</div>
+<div class="dim-wrap">
+  <div class="dim-h">
+    <div class="dim-tick"></div>
+    <div class="dim-line-h"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">285 mm</span>
+  </div>
+  <div class="dim-v">
+    <div class="dim-tick"></div>
+    <div class="dim-line-v"></div>
+    <div class="dim-tick"></div>
+    <span class="dim-text">205 mm</span>
+  </div>
+<div class="face back">
+  <div class="bp-bg"></div>
+  <div class="grid-bg"></div>
+
+  <!-- 頂部 -->
+  <div class="top-bar">
+    <div class="brand">
+      <span class="brand-name">THUNK</span>
+      <span class="brand-div"></span>
+      <span class="brand-sub">WOODEN 3D PUZZLE</span>
+    </div>
+    <span class="pname-small">MECH ROBOT WALKER</span>
+  </div>
+  <div class="top-rule"></div>
+
+  <!-- 描述文字 -->
+  <div class="desc">
+    <p>Build your own bipedal mech — a fully articulated robot with movable arms,
+    hook-style grippers, and dual antenna array. Each of the 212 precision laser-cut
+    birchwood pieces interlocks without glue or tools. A display-worthy companion
+    for your desk that brings engineering and imagination to life.</p>
+  </div>
+
+  <!-- 右側規格面板 -->
+  <div class="spec-panel">
+    <div class="spec-panel-item">
+      <span class="sc-key">FINISHED SIZE</span>
+      <span class="sc-val">12 × 8 × 28 cm</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">PIECES</span>
+      <span class="sc-val">212 PCS</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">ASSEMBLY TIME</span>
+      <span class="sc-val">~ 5 HRS</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">DIFFICULTY</span>
+      <span class="sc-val">ADVANCED</span>
+    </div>
+    <div class="spec-panel-item">
+      <span class="sc-key">AGE</span>
+      <span class="sc-val">14+</span>
+    </div>
+  </div>
+
+  <!-- 3張照片 -->
+  <div class="photos">
+    <div class="photo-thumb">
+      <img src="../ref/產品照/機器人4.jpg" alt="">
+      <div class="ph-label">ASSEMBLED VIEW</div>
+    </div>
+    <div class="photo-thumb">
+      <img src="../ref/產品照/機器人2.jpg" alt="">
+      <div class="ph-label">DETAIL · GRIPPER</div>
+    </div>
+    <div class="photo-thumb">
+      <img src="../ref/產品照/機器人5.jpg" alt="">
+      <div class="ph-label">DETAIL · COMPONENTS</div>
+    </div>
+  </div>
+
+  <!-- 底部欄 -->
+  <div class="bottom-bar">
+    <div class="mfr">
+      <strong>THUNK CO., LTD.</strong><br>
+      MADE IN CHINA &nbsp;·&nbsp; BIRCHWOOD 3.0MM
+      <span class="mfr-warn">WARNING: SMALL PARTS · NOT FOR CHILDREN UNDER 14 · KEEP AWAY FROM FIRE</span>
+    </div>
+
+    <div class="bottom-right">
+      <div class="warning">
+        <div class="warn-icon">!</div>
+        AGE 14+<br>
+        CE · REACH
+      </div>
+
+      <div class="barcode">
+        <div class="barcode-bars">
+          <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+          <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+          <span style="height:100%"></span><span style="height:40%"></span><span style="height:100%"></span>
+          <span style="height:90%"></span><span style="height:100%"></span><span style="height:60%"></span>
+          <span style="height:100%"></span><span style="height:80%"></span><span style="height:100%"></span>
+          <span style="height:50%"></span><span style="height:100%"></span><span style="height:70%"></span>
+          <span style="height:100%"></span><span style="height:100%"></span><span style="height:90%"></span>
+          <span style="height:60%"></span><span style="height:100%"></span><span style="height:80%"></span>
+        </div>
+        <div class="barcode-num">4 712345 678902</div>
+      </div>
+
+      <div class="qr-wrap">
+        <div class="qr-box">
+          <span></span><span></span><span class="e"></span><span></span><span></span>
+          <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+          <span class="e"></span><span></span><span></span><span></span><span class="e"></span>
+          <span></span><span class="e"></span><span></span><span class="e"></span><span></span>
+          <span></span><span></span><span class="e"></span><span></span><span></span>
+        </div>
+        <div class="qr-label">SCAN · MANUAL</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /dim-wrap back -->
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>THUNK — 三款包裝對比</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #fff;
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    color: #333;
+    padding: 40px 10px 60px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 40px;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .frame {
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .frame iframe {
+    border: none;
+    width: 776px;
+    height: 1300px;
+    transform: scale(0.45);
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+  /* iframe 縮放後實際顯示尺寸: 776*0.45=349, 1300*0.45=585 */
+  .frame {
+    width: 349px;
+    height: 585px;
+  }
+</style>
+</head>
+<body>
+
+<h1>THUNK Wooden 3D Puzzle — NYC &middot; Mech Robot &middot; Excavator</h1>
+<div style="text-align:center;font-size:9px;letter-spacing:0.2em;color:#aaa;margin-top:-30px;margin-bottom:30px;">V2 — 2026-04-14</div>
+
+<div class="row">
+  <div class="card">
+    <span class="tag">New York</span>
+    <div class="frame"><iframe src="packaging_nyc_frontback.html" scrolling="no"></iframe></div>
+  </div>
+  <div class="card">
+    <span class="tag">Mech Robot</span>
+    <div class="frame"><iframe src="packaging_robot_frontback.html" scrolling="no"></iframe></div>
+  </div>
+  <div class="card">
+    <span class="tag">Excavator</span>
+    <div class="frame"><iframe src="packaging_excavator_frontback.html" scrolling="no"></iframe></div>
+  </div>
+</div>
+
+</body>
+</html>
